@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onyx Reports — Éditeur Markdown Professionnel</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75' fill='%231A2A3A'>◆</text></svg>">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/themes.css">
+    
+    <!-- Librairies JS (AVANT app.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.min.js"></script>
+</head>
+<body data-theme="light">
+
+    <!-- ==================== NAVBAR ==================== -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            <div class="logo">
+                <i class="fas fa-gem"></i>
+                <span>Onyx Reports</span>
+            </div>
+            <input type="text" id="docTitle" class="doc-title" placeholder="Titre du document..." maxlength="100">
+            <span class="word-count" id="wordCount">0 mots</span>
+        </div>
+
+        <div class="navbar-center">
+            <div class="view-switcher">
+                <button id="btnEditOnly" class="view-btn" title="Mode édition (E)">
+                    <i class="fas fa-pen"></i> Édition
+                </button>
+                <button id="btnSplit" class="view-btn active" title="Mode split (S)">
+                    <i class="fas fa-columns"></i> Split
+                </button>
+                <button id="btnPreviewOnly" class="view-btn" title="Mode aperçu (P)">
+                    <i class="fas fa-eye"></i> Aperçu
+                </button>
+            </div>
+        </div>
+
+        <div class="navbar-right">
+            <!-- Zoom -->
+            <div class="zoom-controls">
+                <button id="btnZoomOut" class="btn-icon" title="Zoom -">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <span id="zoomLevel" class="zoom-display">100%</span>
+                <button id="btnZoomIn" class="btn-icon" title="Zoom +">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button id="btnZoomReset" class="btn-icon" title="Réinitialiser (1)">
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-controls">
+                <button id="btnPrevPage" class="btn-icon" title="Page précédente">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <input type="text" id="pageInput" class="page-input" value="1" readonly>
+                <span id="pageTotal">/ 1</span>
+                <button id="btnNextPage" class="btn-icon" title="Page suivante">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- Menu actions -->
+            <div class="dropdown">
+                <button class="btn-icon" title="Actions">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <button id="btnNew" class="dropdown-item">
+                        <i class="fas fa-file-circle-plus"></i> Nouveau
+                    </button>
+                    <button id="btnSave" class="dropdown-item">
+                        <i class="fas fa-download"></i> Télécharger
+                    </button>
+                    <button id="btnLoad" class="dropdown-item">
+                        <i class="fas fa-upload"></i> Charger
+                    </button>
+                    <hr>
+                    <button id="btnSettings" class="dropdown-item">
+                        <i class="fas fa-cog"></i> Paramètres
+                    </button>
+                    <button id="btnHelp" class="dropdown-item">
+                        <i class="fas fa-question-circle"></i> Aide
+                    </button>
+                </div>
+            </div>
+
+            <!-- Export -->
+            <button id="btnExport" class="btn-export" title="Exporter">
+                <i class="fas fa-download"></i> Export
+            </button>
+        </div>
+    </nav>
+
+    <!-- ==================== MAIN CONTAINER ==================== -->
+    <div class="main-container">
+
+        <!-- ========== SIDEBAR GAUCHE ========== -->
+        <aside class="sidebar-left" id="sidebarLeft">
+            
+            <!-- Templates Section -->
+            <section class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-layer-group"></i> Templates
+                </h3>
+                <div class="templates-list">
+                    <button class="template-btn" onclick="TemplatesManager.load('blank')">
+                        <i class="fas fa-file"></i> Document Vierge
+                    </button>
+                    <button class="template-btn" onclick="TemplatesManager.load('report')">
+                        <i class="fas fa-file-pdf"></i> Rapport Technique
+                    </button>
+                    <button class="template-tab" data-template="internship">
+                        <i class="fas fa-graduation-cap"></i> Rapport de Stage
+                    </button>
+                    <button class="template-btn" onclick="TemplatesManager.load('meeting')">
+                        <i class="fas fa-users"></i> Réunion
+                    </button>
+                    <button class="template-btn" onclick="TemplatesManager.load('cv')">
+                        <i class="fas fa-id-card"></i> CV
+                    </button>
+                </div>
+            </section>
+
+            <!-- Toolbar Section -->
+            <section class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-toolbox"></i> Édition
+                </h3>
+                <div class="toolbar">
+                    <!-- Texte -->
+                    <button class="tool-btn" onclick="EditorManager.insertMarkdown('# ', 'Titre H1')" title="H1">
+                        <i class="fas fa-heading"></i> H1
+                    </button>
+                    <button class="tool-btn" onclick="EditorManager.insertMarkdown('## ', 'Titre H2')" title="H2">
+                        H2
+                    </button>
+                    <button class="tool-btn" onclick="EditorManager.insertMarkdown('### ', 'Titre H3')" title="H3">
+                        H3
+                    </button>
+
+                    <!-- Formatage -->
+                    <button class="tool-btn" onclick="EditorManager.insertMarkdown('**', 'gras')" title="Gras (Ctrl+B)">
+                        <i class="fas fa-bold"></i>
+                    </button>
+                    <button class="tool-btn" onclick="EditorManager.insertMarkdown('*', 'italique')" title="Italique (Ctrl+I)">
+                        <i class="fas fa-italic"></i>
+                    </button>
+                    <button class="tool-btn" onclick="EditorManager.insertMarkdown('~~', 'barré')" title="Barré">
+                        <i class="fas fa-strikethrough"></i>
+                    </button>
+
+                    <!-- Structures -->
+                    <button class="tool-btn" onclick="EditorManager.insertMarkdown('- ', 'Élément')" title="Liste">
+                        <i class="fas fa-list"></i>
+                    </button>
+                    <button class="tool-btn" onclick="EditorManager.insertMarkdown('1. ', 'Élément')" title="Liste numérotée">
+                        <i class="fas fa-list-ol"></i>
+                    </button>
+                    <button class="tool-btn" onclick="EditorManager.insertMarkdown('> ', 'Citation')" title="Citation">
+                        <i class="fas fa-quote-left"></i>
+                    </button>
+
+                    <!-- Code & Bloc -->
+                    <button class="tool-btn" onclick="EditorManager.insertMarkdown('`', 'code')" title="Code inline">
+                        <i class="fas fa-code"></i>
+                    </button>
+                    <button class="tool-btn" onclick="EditorManager.insertCodeBlock()" title="Bloc code">
+                        <i class="fas fa-file-code"></i>
+                    </button>
+
+                    <!-- Médias & Éléments -->
+                    <button class="tool-btn" onclick="EditorManager.insertMarkdown('[', 'texte](url)')" title="Lien">
+                        <i class="fas fa-link"></i>
+                    </button>
+                    <button class="tool-btn" onclick="EditorManager.insertMarkdown('![alt](', 'url)')" title="Image">
+                        <i class="fas fa-image"></i>
+                    </button>
+                    <button class="tool-btn" onclick="EditorManager.insertTable()" title="Tableau">
+                        <i class="fas fa-table"></i>
+                    </button>
+
+                    <!-- Actions -->
+                    <button class="tool-btn" onclick="EditorManager.undo()" title="Annuler (Ctrl+Z)">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button class="tool-btn" onclick="EditorManager.redo()" title="Refaire (Ctrl+Y)">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                    <button class="tool-btn" onclick="EditorManager.insertSeparator()" title="Séparateur">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Help Section -->
+            <section class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-book"></i> Aide Markdown
+                </h3>
+                <div class="markdown-help">
+                    <div class="help-item">
+                        <code>#</code> Titre
+                    </div>
+                    <div class="help-item">
+                        <code>**texte**</code> Gras
+                    </div>
+                    <div class="help-item">
+                        <code>*texte*</code> Italique
+                    </div>
+                    <div class="help-item">
+                        <code>- item</code> Liste
+                    </div>
+                    <div class="help-item">
+                        <code>[lien](url)</code> Lien
+                    </div>
+                </div>
+            </section>
+        </aside>
+
+        <!-- ========== CENTRE (ÉDITEUR + APERÇU) ========== -->
+        <div class="editor-container">
+            <!-- Éditeur -->
+            <div class="editor-pane" id="editorPane">
+                <textarea 
+                    id="editor" 
+                    class="editor-textarea" 
+                    placeholder="Écrivez votre document en Markdown...
+                    
+# Titre
+
+Votre texte ici...
+
+- Point 1
+- Point 2
+
+**Gras** et *italique*
+
+[Lien](https://exemple.com)"
+                    spellcheck="true"></textarea>
+            </div>
+
+            <!-- Séparateur mobile -->
+            <div class="editor-separator" id="editorSeparator"></div>
+
+            <!-- Aperçu -->
+            <div class="preview-pane" id="previewPane">
+                <div class="preview-content" id="preview"></div>
+            </div>
+        </div>
+
+        <!-- ========== SIDEBAR DROITE ========== -->
+        <aside class="sidebar-right" id="sidebarRight">
+
+            <!-- Export Section -->
+            <section class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-file-download"></i> Exporter
+                </h3>
+                <div class="export-buttons">
+                    <button class="export-btn" onclick="ExportManager.exportPDF()" title="PDF">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </button>
+                    <button class="export-btn" onclick="ExportManager.exportHTML()" title="HTML">
+                        <i class="fas fa-globe"></i> HTML
+                    </button>
+                    <button class="export-btn" onclick="ExportManager.exportWord()" title="Word">
+                        <i class="fas fa-file-word"></i> Word
+                    </button>
+                    <button class="export-btn" onclick="ExportManager.exportMarkdown()" title="Markdown">
+                        <i class="fas fa-file-alt"></i> Markdown
+                    </button>
+                    <button class="export-btn" onclick="ExportManager.exportJSON()" title="JSON">
+                        <i class="fas fa-code"></i> JSON
+                    </button>
+                </div>
+            </section>
+
+            <!-- Couverture Section -->
+            <section class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-file-invoice"></i> Couverture
+                </h3>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="chkCover"> Ajouter couverture
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="chkTOC"> Table des matières
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>Auteur</label>
+                    <input type="text" id="inputAuthor" class="input-field" placeholder="Votre nom">
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="inputDate" class="input-field">
+                </div>
+            </section>
+
+            <!-- Stats Section -->
+            <section class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-chart-bar"></i> Statistiques
+                </h3>
+                <div class="stat-item">
+                    <span class="stat-label">Mots</span>
+                    <span class="stat-value" id="statWords">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Caractères</span>
+                    <span class="stat-value" id="statChars">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Paragraphes</span>
+                    <span class="stat-value" id="statParas">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Pages</span>
+                    <span class="stat-value" id="statPages">1</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Temps lecture</span>
+                    <span class="stat-value" id="statReadTime">0m</span>
+                </div>
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-bolt"></i> Actions Rapides
+                </h3>
+                <button class="action-btn" onclick="EditorManager.copyText()" title="Copier le texte">
+                    <i class="fas fa-copy"></i> Copier
+                </button>
+                <button class="action-btn" onclick="EditorManager.clearEditor()" title="Effacer tout">
+                    <i class="fas fa-trash"></i> Effacer
+                </button>
+                <button class="action-btn" onclick="window.print()" title="Imprimer">
+                    <i class="fas fa-print"></i> Imprimer
+                </button>
+            </section>
+
+            <!-- Raccourcis -->
+            <section class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-keyboard"></i> Raccourcis
+                </h3>
+                <div class="shortcuts-list">
+                    <div class="shortcut">
+                        <kbd>Ctrl+B</kbd> Gras
+                    </div>
+                    <div class="shortcut">
+                        <kbd>Ctrl+I</kbd> Italique
+                    </div>
+                    <div class="shortcut">
+                        <kbd>Ctrl+Z</kbd> Annuler
+                    </div>
+                    <div class="shortcut">
+                        <kbd>Ctrl+S</kbd> Sauvegarder
+                    </div>
+                    <div class="shortcut">
+                        <kbd>Ctrl+E</kbd> Exporter
+                    </div>
+                </div>
+            </section>
+        </aside>
+    </div>
+
+    <!-- ==================== MODALS ==================== -->
+
+    <!-- Modal - Nouveau Document -->
+    <div class="modal" id="modalNewDoc">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nouveau Document</h2>
+                <button class="modal-close" onclick="UIManager.closeModal('modalNewDoc')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Créer un nouveau document ? Les modifications non sauvegardées seront perdues.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="UIManager.closeModal('modalNewDoc')">Annuler</button>
+                <button class="btn-primary" onclick="EditorManager.newDocument()">Créer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal - Charger Document -->
+    <div class="modal" id="modalLoadDoc">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Charger un Document</h2>
+                <button class="modal-close" onclick="UIManager.closeModal('modalLoadDoc')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="file" id="fileInput" accept=".md,.txt,.json" style="width: 100%;">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="UIManager.closeModal('modalLoadDoc')">Annuler</button>
+                <button class="btn-primary" onclick="EditorManager.loadFromFile()">Charger</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal - Paramètres -->
+    <div class="modal" id="modalSettings">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Paramètres</h2>
+                <button class="modal-close" onclick="UIManager.closeModal('modalSettings')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h3>Thème</h3>
+                <div class="theme-selector">
+                    <button class="theme-option" data-theme="light" onclick="ThemesManager.setTheme('light')">
+                        <i class="fas fa-sun"></i> Clair
+                    </button>
+                    <button class="theme-option" data-theme="dark" onclick="ThemesManager.setTheme('dark')">
+                        <i class="fas fa-moon"></i> Sombre
+                    </button>
+                    <button class="theme-option" data-theme="industrial" onclick="ThemesManager.setTheme('industrial')">
+                        <i class="fas fa-cog"></i> Industriel
+                    </button>
+                </div>
+
+                <h3 style="margin-top: 20px;">Paramètres Généraux</h3>
+                <label style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="chkAutoSave"> Auto-sauvegarde
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="chkSpellCheck" checked> Vérification orthographe
+                </label>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="UIManager.closeModal('modalSettings')">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- ==================== SCRIPTS ==================== -->
+    <script src="js/templates.js"></script>
+    <script src="js/themes.js"></script>
+    <script src="js/editor.js"></script>
+    <script src="js/export.js"></script>
+    <script src="js/coverpage.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+</html>

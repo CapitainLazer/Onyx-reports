@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  onyx-reports:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: onyx-reports-app
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      NODE_ENV: production
+    restart: unless-stopped
+    networks:
+      - onyx-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  onyx-network:
+    driver: bridge

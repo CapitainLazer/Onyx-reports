@@ -1,0 +1,13 @@
+{
+  "name": "editeur-de-text",
+  "version": "1.0.0",
+  "description": "Application web moderne pour créer, éditer et exporter vos rapports de stage au format PDF avec support complet du Markdown.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {}
+}

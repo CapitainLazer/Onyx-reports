@@ -1,0 +1,142 @@
+{
+  "default": {
+    "name": "Défaut",
+    "colors": {
+      "primary": "#1A2A3A",
+      "secondary": "#E67E22",
+      "background": "#ECF0F1",
+      "text": "#1A2A3A"
+    },
+    "coverStyle": "default"
+  },
+  "minimaliste": {
+    "name": "Minimaliste",
+    "colors": {
+      "primary": "#2563EB",
+      "secondary": "#6B7280",
+      "background": "#F9FAFB",
+      "text": "#111827"
+    },
+    "coverStyle": "minimaliste"
+  },
+  "professionnel": {
+    "name": "Professionnel",
+    "colors": {
+      "primary": "#111827",
+      "secondary": "#374151",
+      "background": "#FFFFFF",
+      "text": "#111827"
+    },
+    "coverStyle": "professionnel"
+  },
+  "creatif": {
+    "name": "Créatif",
+    "colors": {
+      "primary": "#F97316",
+      "secondary": "#2563EB",
+      "background": "#FFFFFF",
+      "text": "#111827"
+    },
+    "coverStyle": "creatif"
+  },
+  "structure-beton": {
+    "name": "Structure Béton",
+    "colors": {
+      "primary": "#1A2A3A",
+      "secondary": "#E67E22",
+      "background": "#ECF0F1",
+      "text": "#1A2A3A"
+    },
+    "coverStyle": "structure-beton"
+  },
+  "genie-civil": {
+    "name": "Génie Civil",
+    "colors": {
+      "primary": "#1E3A5F",
+      "secondary": "#E67E22",
+      "background": "#F4F6F8",
+      "text": "#1A2A3A"
+    },
+    "coverStyle": "genie-civil"
+  },
+  "architecture": {
+    "name": "Architecture",
+    "colors": {
+      "primary": "#374151",
+      "secondary": "#6B7280",
+      "background": "#FFFFFF",
+      "text": "#111827"
+    },
+    "coverStyle": "architecture"
+  },
+  "multitechnique": {
+    "name": "Multitechnique",
+    "colors": {
+      "primary": "#1A2A3A",
+      "secondary": "#27AE60",
+      "background": "#ECF0F1",
+      "text": "#1A2A3A"
+    },
+    "coverStyle": "multitechnique"
+  },
+  "calculs-structurels": {
+    "name": "Calculs Structurels",
+    "colors": {
+      "primary": "#1E40AF",
+      "secondary": "#6B7280",
+      "background": "#F9FAFB",
+      "text": "#111827"
+    },
+    "coverStyle": "calculs-structurels"
+  },
+  "plans-usine": {
+    "name": "Plans Usine",
+    "colors": {
+      "primary": "#1A2A3A",
+      "secondary": "#E74C3C",
+      "background": "#ECF0F1",
+      "text": "#1A2A3A"
+    },
+    "coverStyle": "plans-usine"
+  },
+  "coordination-chs": {
+    "name": "Coordination CHS",
+    "colors": {
+      "primary": "#7D3C00",
+      "secondary": "#E67E22",
+      "background": "#FEF9F0",
+      "text": "#3D1C00"
+    },
+    "coverStyle": "coordination-chs"
+  },
+  "medical": {
+    "name": "Médical",
+    "colors": {
+      "primary": "#10B981",
+      "secondary": "#6B7280",
+      "background": "#FFFFFF",
+      "text": "#111827"
+    },
+    "coverStyle": "medical"
+  },
+  "education": {
+    "name": "Éducation",
+    "colors": {
+      "primary": "#8B5CF6",
+      "secondary": "#6B7280",
+      "background": "#FFFFFF",
+      "text": "#111827"
+    },
+    "coverStyle": "education"
+  },
+  "technique": {
+    "name": "Technique",
+    "colors": {
+      "primary": "#1E40AF",
+      "secondary": "#6B7280",
+      "background": "#F9FAFB",
+      "text": "#111827"
+    },
+    "coverStyle": "technique"
+  }
+}
