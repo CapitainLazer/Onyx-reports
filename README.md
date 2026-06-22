@@ -1,9 +1,11 @@
-# RapportStage — Éditeur de Rapports de Stage
+# Onyx Reports — Éditeur de Rapports
 
 Application web moderne pour créer, éditer et exporter vos rapports de stage au format PDF avec support complet du Markdown.
 
 ![Preview](https://img.shields.io/badge/Status-Ready-brightgreen)
-![Markdown](https://img.shields.io/badge/Markdown-Support-blue)
+![Markdown](https://img.shields.io/badge/Markdowngit remote add origin https://github.com/CapitainLazer/Onyx-reports.git
+git branch -M main
+git push -u origin main-Support-blue)
 ![PDF](https://img.shields.io/badge/PDF-Export-red)
 
 ## ✨ Fonctionnalités
