@@ -821,33 +821,21 @@ body {
     min-height: 0;
     background: var(--onyx-charcoal);
     border-right: 2px solid var(--accent-primary);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    overflow: auto;
+    display: block;
 }
 
-
-.preview-header {
-    padding: var(--spacing-lg);
-    background: linear-gradient(90deg, rgba(167, 139, 250, 0.1), rgba(6, 182, 212, 0.1));
-    border-bottom: 2px solid var(--accent-primary);
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: var(--onyx-light);
-    letter-spacing: 1px;
+.preview-scaler {
+    transform-origin: top left;
+    min-width: 100%;
+    box-sizing: border-box;
 }
 
 .preview-content {
-    flex: 1;
-    min-height: 0;
     padding: var(--spacing-xl);
-    overflow-y: auto;
-    overflow-x: hidden;
     font-size: 14px;
     line-height: 1.8;
-    transform-origin: top left;
-    transition: transform var(--transition-lg);
+    box-sizing: border-box;
 }
 
 .preview-content h1,
@@ -863,19 +851,19 @@ body {
 }
 
 .preview-content h1 {
-    font-size: 28px;
+    font-size: 2em;
     border-bottom: 3px solid var(--accent-primary);
     padding-bottom: var(--spacing-md);
 }
 
 .preview-content h2 {
-    font-size: 24px;
+    font-size: 1.714em;
     border-bottom: 2px solid var(--accent-secondary);
     padding-bottom: var(--spacing-sm);
 }
 
 .preview-content h3 {
-    font-size: 20px;
+    font-size: 1.429em;
 }
 
 .preview-content p {
@@ -911,7 +899,7 @@ body {
     padding: var(--spacing-xs) var(--spacing-sm);
     border-radius: 3px;
     font-family: var(--font-mono);
-    font-size: 13px;
+    font-size: 0.929em;
     border: 1px solid var(--accent-primary);
     font-weight: 600;
 }

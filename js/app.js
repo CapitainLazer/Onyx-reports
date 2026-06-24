@@ -1,15 +1,19 @@
 // ===== ONYX REPORTS - APPLICATION PRINCIPALE =====
 
 class OnyxReports {
+    static PREVIEW_BASE_FONT_SIZE = 14;
+
     constructor() {
         this.editor = document.getElementById('editor');
         this.preview = document.getElementById('preview');
+        this.previewScaler = document.getElementById('previewScaler');
+        this.previewPane = document.getElementById('previewPane');
         this.docTitle = document.getElementById('docTitle');
         this.wordCount = document.getElementById('wordCount');
         
         this.currentView = 'split'; // 'edit', 'split', 'preview'
         this.editorMode = localStorage.getItem('onyx_editor_mode') || 'markdown'; // 'markdown' | 'classic'
-        this.currentZoom = 100;
+        this.currentZoom = parseInt(localStorage.getItem('onyx_zoom'), 10) || 100;
         this.currentPage = 1;
         this.totalPages = 1;
         this.isDirty = false;
@@ -132,36 +136,69 @@ class OnyxReports {
         const btnZoomOut = document.getElementById('btnZoomOut');
         const btnZoomIn = document.getElementById('btnZoomIn');
         const btnZoomReset = document.getElementById('btnZoomReset');
-        const zoomLevel = document.getElementById('zoomLevel');
 
         btnZoomOut.addEventListener('click', () => {
-            this.currentZoom = Math.max(50, this.currentZoom - 10);
-            this.applyZoom();
-            zoomLevel.textContent = `${this.currentZoom}%`;
+            this.setZoom(this.currentZoom - 10);
         });
 
         btnZoomIn.addEventListener('click', () => {
-            this.currentZoom = Math.min(200, this.currentZoom + 10);
-            this.applyZoom();
-            zoomLevel.textContent = `${this.currentZoom}%`;
+            this.setZoom(this.currentZoom + 10);
         });
 
         btnZoomReset.addEventListener('click', () => {
-            this.currentZoom = 100;
-            this.applyZoom();
-            zoomLevel.textContent = '100%';
+            this.setZoom(100);
         });
+
+        this.setupPreviewWheelZoom();
+        this.applyZoom();
+    }
+
+    setZoom(level) {
+        this.currentZoom = Math.max(50, Math.min(200, level));
+        localStorage.setItem('onyx_zoom', this.currentZoom);
+        this.applyZoom();
+    }
+
+    setupPreviewWheelZoom() {
+        if (!this.previewPane) return;
+
+        this.previewPane.addEventListener('wheel', (e) => {
+            if (!e.ctrlKey && !e.metaKey) return;
+            e.preventDefault();
+            const delta = e.deltaY < 0 ? 10 : -10;
+            this.setZoom(this.currentZoom + delta);
+        }, { passive: false });
+    }
+
+    isEditableTarget(target) {
+        return target === this.editor
+            || target?.id === 'classicEditor'
+            || target?.isContentEditable;
     }
 
     // ===== ZOOM =====
     applyZoom() {
         const scale = this.currentZoom / 100;
-        const previewContent = document.querySelector('.preview-content');
+        const scaler = this.previewScaler;
+        const preview = this.preview;
 
-        if (previewContent) {
-            previewContent.style.transform = `scale(${scale})`;
-            previewContent.style.transformOrigin = 'top left';
-            previewContent.style.width = scale !== 1 ? `${100 / scale}%` : '';
+        if (!scaler || !preview) return;
+
+        scaler.style.zoom = '';
+        scaler.style.transform = '';
+        scaler.style.width = '';
+        scaler.style.marginBottom = '';
+        preview.style.fontSize = `${OnyxReports.PREVIEW_BASE_FONT_SIZE}px`;
+
+        if (scale === 1) {
+            document.getElementById('zoomLevel').textContent = '100%';
+            return;
+        }
+
+        if (CSS.supports('zoom', '1')) {
+            scaler.style.zoom = String(scale);
+        } else {
+            preview.style.fontSize = `${OnyxReports.PREVIEW_BASE_FONT_SIZE * scale}px`;
         }
 
         document.getElementById('zoomLevel').textContent = `${this.currentZoom}%`;
@@ -275,6 +312,30 @@ class OnyxReports {
             if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
                 e.preventDefault();
                 UIManager.openModal('modalHelp');
+            }
+
+            if (this.isEditableTarget(e.target)) return;
+
+            // 1 = Réinitialiser le zoom
+            if (e.key === '1' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                e.preventDefault();
+                this.setZoom(100);
+            }
+
+            // Ctrl/Cmd + = / - = Zoom
+            if ((e.ctrlKey || e.metaKey) && (e.key === '=' || e.key === '+')) {
+                e.preventDefault();
+                this.setZoom(this.currentZoom + 10);
+            }
+
+            if ((e.ctrlKey || e.metaKey) && e.key === '-') {
+                e.preventDefault();
+                this.setZoom(this.currentZoom - 10);
+            }
+
+            if ((e.ctrlKey || e.metaKey) && e.key === '0') {
+                e.preventDefault();
+                this.setZoom(100);
             }
         });
     }
@@ -416,6 +477,7 @@ class OnyxReports {
 
         // Highlight code blocks (optionnel)
         this.highlightCode();
+        this.applyZoom();
     }
 
     highlightCode() {
