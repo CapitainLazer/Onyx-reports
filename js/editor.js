@@ -102,9 +102,9 @@ class EditorManager {
     }
 
     // ===== SET/GET VALUE =====
-    static setValue(value, triggerInput = true) {
+    static setValue(value, triggerInput = true, skipClassicRefresh = false) {
         this.editor.value = value;
-        if (ClassicEditorManager.isActive) {
+        if (ClassicEditorManager.isActive && !skipClassicRefresh) {
             ClassicEditorManager.activate();
         }
         if (triggerInput) {

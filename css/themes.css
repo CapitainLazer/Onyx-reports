@@ -2,8 +2,17 @@
    ONYX REPORTS - THEMES CSS
    ============================================ */
 
-/* === THÈME DARK (DÉFAUT) === */
+/* === THÈME DARK === */
 [data-theme="dark"] {
+    --onyx-black: #0F1419;
+    --onyx-dark: #1A1F2E;
+    --onyx-charcoal: #2D3142;
+    --onyx-slate: #3E4556;
+    --onyx-silver: #8B92A9;
+    --onyx-light: #D4D8E0;
+    --onyx-lighter: #E8ECFF;
+    --onyx-muted: #8B92A9;
+
     /* Couleurs principales */
     --primary: #E67E22;
     --primary-hover: #D35400;
@@ -37,6 +46,15 @@
 
 /* === THÈME INDUSTRIEL === */
 [data-theme="industrial"] {
+    --onyx-black: #1A252F;
+    --onyx-dark: #243447;
+    --onyx-charcoal: #2C3E50;
+    --onyx-slate: #3D566E;
+    --onyx-silver: #95A5A6;
+    --onyx-light: #ECF0F1;
+    --onyx-lighter: #FFFFFF;
+    --onyx-muted: #BDC3C7;
+
     --primary: #E67E22;
     --primary-hover: #D35400;
     --primary-light: rgba(230, 126, 34, 0.15);
@@ -64,6 +82,15 @@
 
 /* === THÈME LIGHT === */
 [data-theme="light"] {
+    --onyx-black: #E9ECEF;
+    --onyx-dark: #FFFFFF;
+    --onyx-charcoal: #F8F9FA;
+    --onyx-slate: #DEE2E6;
+    --onyx-silver: #6C757D;
+    --onyx-light: #212529;
+    --onyx-lighter: #1A1A1A;
+    --onyx-muted: #6C757D;
+
     /* Couleurs principales */
     --primary: #2C3E50;
     --primary-hover: #34495E;
@@ -262,8 +289,8 @@
 
 /* === APPLICATION DES VARIABLES THÈME === */
 body {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
+    background-color: var(--onyx-black);
+    color: var(--onyx-light);
 }
 
 
@@ -708,13 +735,15 @@ body {
     background: var(--bg-primary);
 }
 
-#editor {
-    background: var(--bg-primary);
-    color: var(--text-primary);
+.editor-textarea,
+.classic-editor {
+    background: var(--onyx-dark);
+    color: var(--onyx-light);
 }
 
-#editor::placeholder {
-    color: var(--text-muted);
+.editor-textarea::placeholder,
+.classic-editor:empty::before {
+    color: var(--onyx-muted);
 }
 
 .pane-header {
@@ -729,18 +758,18 @@ body {
 
 /* Preview themed */
 .preview-content {
-    background: var(--bg-primary);
+    background: var(--onyx-charcoal);
 }
 
 .preview-content h1,
 .preview-content h2,
 .preview-content h3 {
-    color: var(--text-primary);
+    color: var(--onyx-light);
 }
 
 .preview-content p,
 .preview-content li {
-    color: var(--text-secondary);
+    color: var(--onyx-light);
 }
 
 .preview-content blockquote {
@@ -787,13 +816,14 @@ body {
 }
 
 #docTitle {
-    color: var(--text-primary);
+    color: var(--onyx-light);
+    background: rgba(167, 139, 250, 0.05);
 }
 
 #docTitle:hover,
 #docTitle:focus {
-    border-color: var(--border-color);
-    background: var(--bg-primary);
+    border-color: var(--accent-secondary);
+    background: rgba(6, 182, 212, 0.1);
 }
 
 .status-bar i {

@@ -16,6 +16,7 @@
     --onyx-silver: #8B92A9;
     --onyx-light: #D4D8E0;
     --onyx-lighter: #E8ECFF;
+    --onyx-muted: #8B92A9;
     
     /* Couleurs Accent Modernes */
     --accent-primary: #A78BFA;      /* Violet Premium */
@@ -39,6 +40,7 @@
     
     /* Typographie */
     --font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    --font-sans: var(--font-primary);
     --font-mono: 'Fira Code', 'Monaco', 'Courier New', monospace;
     
     /* Ombres */
@@ -425,7 +427,7 @@ body {
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 1.5px;
-    color: white;
+    color: var(--onyx-light);
     padding-bottom: var(--spacing-md);
     border-bottom: 2px solid var(--accent-secondary);
 }
@@ -550,7 +552,7 @@ body {
     border-radius: 4px;
     font-size: 11px;
     font-weight: 600;
-    color: white;
+    color: var(--onyx-light);
 }
 
 .help-item code {
@@ -656,6 +658,11 @@ body {
     line-height: 1.8;
     overflow-y: auto;
     outline: none;
+    direction: ltr;
+    unicode-bidi: plaintext;
+    text-align: left;
+    writing-mode: horizontal-tb;
+    caret-color: var(--accent-secondary);
 }
 
 .classic-editor:empty::before {
@@ -755,7 +762,7 @@ body {
     font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
-    color: white;
+    color: var(--onyx-light);
     letter-spacing: 1px;
 }
 
@@ -812,7 +819,7 @@ body {
     font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
-    color: white;
+    color: var(--onyx-light);
     letter-spacing: 1px;
 }
 
@@ -972,7 +979,7 @@ body {
     font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
-    color: white;
+    color: var(--onyx-light);
     letter-spacing: 0.5px;
 }
 
@@ -1014,7 +1021,7 @@ body {
     gap: var(--spacing-md);
     font-size: 12px;
     font-weight: 600;
-    color: white;
+    color: var(--onyx-light);
     cursor: pointer;
     user-select: none;
 }
@@ -1065,7 +1072,7 @@ body {
 .export-btn {
     background: var(--onyx-slate);
     border: 2px solid var(--accent-secondary);
-    color: white;
+    color: var(--onyx-light);
     padding: var(--spacing-md) var(--spacing-lg);
     border-radius: 4px;
     cursor: pointer;
@@ -1108,7 +1115,7 @@ body {
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 1.5px;
-    color: white;
+    color: var(--onyx-light);
     padding-bottom: var(--spacing-md);
     border-bottom: 2px solid var(--accent-secondary);
 }

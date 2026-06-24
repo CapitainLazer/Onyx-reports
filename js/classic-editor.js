@@ -4,11 +4,15 @@ class ClassicEditorManager {
     static pane = null;
     static editor = null;
     static isActive = false;
+    static isSyncing = false;
 
     static init() {
         this.pane = document.getElementById('classicPane');
         this.editor = document.getElementById('classicEditor');
         if (!this.pane || !this.editor) return;
+
+        this.editor.setAttribute('dir', 'ltr');
+        this.editor.setAttribute('lang', 'fr');
 
         this.editor.addEventListener('input', () => {
             this.syncToMarkdown();
@@ -18,6 +22,7 @@ class ClassicEditorManager {
             e.preventDefault();
             const text = e.clipboardData.getData('text/plain');
             document.execCommand('insertText', false, text);
+            this.syncToMarkdown();
         });
     }
 
@@ -28,6 +33,8 @@ class ClassicEditorManager {
         this.editor.innerHTML = typeof marked !== 'undefined'
             ? marked.parse(markdown)
             : markdown.replace(/\n/g, '<br>');
+
+        this.editor.setAttribute('dir', 'ltr');
     }
 
     static deactivate() {
@@ -37,16 +44,21 @@ class ClassicEditorManager {
     }
 
     static syncToMarkdown() {
-        if (!this.editor || typeof TurndownService === 'undefined') return;
+        if (!this.editor || typeof TurndownService === 'undefined' || this.isSyncing) return;
 
-        const turndown = new TurndownService({
-            headingStyle: 'atx',
-            codeBlockStyle: 'fenced'
-        });
+        this.isSyncing = true;
+        try {
+            const turndown = new TurndownService({
+                headingStyle: 'atx',
+                codeBlockStyle: 'fenced'
+            });
 
-        const html = this.editor.innerHTML;
-        const markdown = turndown.turndown(html);
-        EditorManager.setValue(markdown, false);
+            const html = this.editor.innerHTML;
+            const markdown = turndown.turndown(html);
+            EditorManager.setValue(markdown, true, true);
+        } finally {
+            this.isSyncing = false;
+        }
     }
 
     static execCommand(command, value = null) {
