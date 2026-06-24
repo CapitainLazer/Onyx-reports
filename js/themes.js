@@ -35,6 +35,10 @@ class ThemesManager {
         // Mettre à jour boutons
         this.updateThemeButtons();
 
+        if (typeof DocumentStyleManager !== 'undefined') {
+            DocumentStyleManager.onThemeChanged(theme);
+        }
+
         // Retirer classe après transition
         setTimeout(() => {
             document.body.classList.remove('theme-transitioning');

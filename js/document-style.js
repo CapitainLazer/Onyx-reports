@@ -4,22 +4,40 @@ class DocumentStyleManager {
     static settings = null;
     static presets = {};
 
+    static themePalettes = {
+        light: {
+            h1: '#1E3A8A', h2: '#5B21B6', h3: '#9D174D',
+            body: '#212529', link: '#0891B2', code: '#6D28D9',
+            quote: '#495057', accent: '#7C3AED',
+            primary: '#F8F9FA', secondary: '#0891B2'
+        },
+        dark: {
+            h1: '#22D3EE', h2: '#A78BFA', h3: '#F472B6',
+            body: '#D4D8E0', link: '#06B6D4', code: '#C4B5FD',
+            quote: '#8B92A9', accent: '#A78BFA',
+            primary: '#1A1F2E', secondary: '#06B6D4'
+        },
+        industrial: {
+            h1: '#F39C12', h2: '#ECF0F1', h3: '#E67E22',
+            body: '#ECF0F1', link: '#E67E22', code: '#F5B041',
+            quote: '#BDC3C7', accent: '#E67E22',
+            primary: '#243447', secondary: '#F39C12'
+        },
+        minimal: {
+            h1: '#111111', h2: '#333333', h3: '#555555',
+            body: '#212529', link: '#000000', code: '#444444',
+            quote: '#666666', accent: '#111111',
+            primary: '#FAFAFA', secondary: '#333333'
+        }
+    };
+
     static defaultSettings() {
+        const theme = document.body?.getAttribute('data-theme') || 'light';
+        const palette = this.themePalettes[theme] || this.themePalettes.dark;
         return {
             preset: 'default',
             coverTemplate: 'geometric-onyx',
-            colors: {
-                h1: '#06B6D4',
-                h2: '#A78BFA',
-                h3: '#EC4899',
-                body: '#D4D8E0',
-                link: '#06B6D4',
-                code: '#A78BFA',
-                quote: '#8B92A9',
-                accent: '#A78BFA',
-                primary: '#1A1F2E',
-                secondary: '#06B6D4'
-            }
+            colors: { ...palette }
         };
     }
 
@@ -55,6 +73,8 @@ class DocumentStyleManager {
         this.populateUI();
         this.bindEvents();
         this.applyToPreview();
+        const theme = document.body?.getAttribute('data-theme') || 'light';
+        this.onThemeChanged(theme);
     }
 
     static async loadPresets() {
@@ -220,7 +240,7 @@ class DocumentStyleManager {
         const preview = document.getElementById('preview');
         if (!preview) return;
 
-        const c = this.settings.colors;
+        const c = this.ensureReadableColors();
         preview.classList.add('doc-styled');
         preview.style.setProperty('--doc-h1', c.h1);
         preview.style.setProperty('--doc-h2', c.h2);
@@ -353,7 +373,7 @@ class DocumentStyleManager {
     }
 
     static getExportCSS() {
-        const c = this.settings.colors;
+        const c = this.ensureReadableColors();
         return `
             h1 { color: ${c.h1}; border-bottom: 3px solid ${c.accent}; padding-bottom: 10px; }
             h2 { color: ${c.h2}; border-bottom: 2px solid ${c.accent}; padding-bottom: 8px; }
@@ -383,6 +403,49 @@ class DocumentStyleManager {
         this.populateUI();
         this.applyToPreview();
         this.updateCoverPreview();
+    }
+
+    static onThemeChanged(theme) {
+        if (!this.settings) return;
+
+        const palette = this.themePalettes[theme];
+
+        if (palette && this.settings.preset === 'default') {
+            this.settings.colors = { ...palette };
+            this.saveSettings();
+            this.syncColorInputs();
+        }
+
+        this.applyToPreview();
+        this.updateCoverPreview();
+    }
+
+    static isLightUiTheme(theme) {
+        return ['light', 'isac', 'minimal'].includes(theme);
+    }
+
+    static getContrastColor(hex) {
+        const num = parseInt(hex.replace('#', ''), 16);
+        const r = (num >> 16) & 255;
+        const g = (num >> 8) & 255;
+        const b = num & 255;
+        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        return luminance > 0.55 ? '#212529' : '#F8F9FA';
+    }
+
+    static ensureReadableColors() {
+        const theme = document.body?.getAttribute('data-theme') || 'dark';
+        const isLight = this.isLightUiTheme(theme);
+        const c = { ...this.settings.colors };
+
+        if (isLight) {
+            if (this.getContrastColor(c.body) === '#F8F9FA') c.body = '#212529';
+            if (this.getContrastColor(c.quote) === '#F8F9FA') c.quote = '#495057';
+        } else {
+            if (this.getContrastColor(c.body) === '#212529') c.body = '#D4D8E0';
+        }
+
+        return c;
     }
 }
 
