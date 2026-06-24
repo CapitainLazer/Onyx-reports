@@ -31,13 +31,36 @@ class DocumentStyleManager {
         }
     };
 
+    static defaultCoverColors(palette = {}, theme = 'dark') {
+        const isLight = ['light', 'isac', 'minimal'].includes(theme);
+        if (isLight) {
+            return {
+                bgStart: '#F8F9FA',
+                bgEnd: '#DEE2E6',
+                title: palette.h1 || '#1E3A8A',
+                text: palette.body || '#495057',
+                shapes: palette.accent || '#7C3AED',
+                accent: palette.accent || '#7C3AED'
+            };
+        }
+        return {
+            bgStart: palette.primary || '#1A1F2E',
+            bgEnd: this.shadeColor(palette.primary || '#1A1F2E', 25),
+            title: '#FFFFFF',
+            text: palette.secondary || '#ECF0F1',
+            shapes: palette.accent || '#E67E22',
+            accent: palette.accent || '#A78BFA'
+        };
+    }
+
     static defaultSettings() {
         const theme = document.body?.getAttribute('data-theme') || 'light';
         const palette = this.themePalettes[theme] || this.themePalettes.dark;
         return {
             preset: 'default',
             coverTemplate: 'geometric-onyx',
-            colors: { ...palette }
+            colors: { ...palette },
+            coverColors: this.defaultCoverColors(palette, theme)
         };
     }
 
@@ -102,7 +125,14 @@ class DocumentStyleManager {
         try {
             const saved = localStorage.getItem('onyx_doc_style');
             if (saved) {
-                return { ...this.defaultSettings(), ...JSON.parse(saved) };
+                const parsed = JSON.parse(saved);
+                const defaults = this.defaultSettings();
+                return {
+                    ...defaults,
+                    ...parsed,
+                    colors: { ...defaults.colors, ...(parsed.colors || {}) },
+                    coverColors: { ...defaults.coverColors, ...(parsed.coverColors || {}) }
+                };
             }
         } catch (e) {
             console.warn('Erreur chargement style document:', e);
@@ -141,20 +171,77 @@ class DocumentStyleManager {
     }
 
     static syncColorInputs() {
-        const map = {
-            colorH1: 'h1',
-            colorH2: 'h2',
-            colorH3: 'h3',
-            colorBody: 'body',
-            colorLink: 'link',
-            colorCode: 'code',
-            colorQuote: 'quote',
-            colorAccent: 'accent'
+        const contentMap = {
+            colorH1: 'h1', hexH1: 'h1',
+            colorH2: 'h2', hexH2: 'h2',
+            colorH3: 'h3', hexH3: 'h3',
+            colorBody: 'body', hexBody: 'body',
+            colorLink: 'link', hexLink: 'link',
+            colorCode: 'code', hexCode: 'code',
+            colorQuote: 'quote', hexQuote: 'quote',
+            colorAccent: 'accent', hexAccent: 'accent'
         };
 
-        Object.entries(map).forEach(([inputId, colorKey]) => {
+        const coverMap = {
+            colorCoverBgStart: 'bgStart', hexCoverBgStart: 'bgStart',
+            colorCoverBgEnd: 'bgEnd', hexCoverBgEnd: 'bgEnd',
+            colorCoverTitle: 'title', hexCoverTitle: 'title',
+            colorCoverText: 'text', hexCoverText: 'text',
+            colorCoverShapes: 'shapes', hexCoverShapes: 'shapes'
+        };
+
+        if (!this.settings.coverColors) {
+            this.settings.coverColors = this.defaultCoverColors(this.settings.colors);
+        }
+
+        Object.entries(contentMap).forEach(([inputId, colorKey]) => {
             const input = document.getElementById(inputId);
             if (input) input.value = this.settings.colors[colorKey];
+        });
+
+        Object.entries(coverMap).forEach(([inputId, colorKey]) => {
+            const input = document.getElementById(inputId);
+            if (input) input.value = this.settings.coverColors[colorKey];
+        });
+    }
+
+    static markAsCustom() {
+        this.settings.preset = 'custom';
+        const presetSelect = document.getElementById('docStylePreset');
+        if (presetSelect) {
+            if (!presetSelect.querySelector('option[value="custom"]')) {
+                presetSelect.insertAdjacentHTML('beforeend', '<option value="custom">Personnalisé</option>');
+            }
+            presetSelect.value = 'custom';
+        }
+    }
+
+    static bindColorControl(pickerId, hexId, target, key) {
+        const picker = document.getElementById(pickerId);
+        const hex = document.getElementById(hexId);
+        if (!picker || !hex) return;
+
+        const applyValue = (value) => {
+            if (!/^#[0-9A-Fa-f]{6}$/.test(value)) return;
+            if (target === 'cover') {
+                if (!this.settings.coverColors) this.settings.coverColors = this.defaultCoverColors(this.settings.colors);
+                this.settings.coverColors[key] = value;
+            } else {
+                this.settings.colors[key] = value;
+            }
+            picker.value = value;
+            hex.value = value.toUpperCase();
+            this.markAsCustom();
+            this.saveSettings();
+            if (target === 'cover') this.updateCoverPreview();
+            else this.applyToPreview();
+        };
+
+        picker.addEventListener('input', (e) => applyValue(e.target.value));
+        hex.addEventListener('change', (e) => applyValue(e.target.value.trim()));
+        hex.addEventListener('input', (e) => {
+            const value = e.target.value.trim();
+            if (/^#[0-9A-Fa-f]{6}$/.test(value)) picker.value = value;
         });
     }
 
@@ -169,23 +256,20 @@ class DocumentStyleManager {
             this.updateCoverPreview();
         });
 
-        ['colorH1', 'colorH2', 'colorH3', 'colorBody', 'colorLink', 'colorCode', 'colorQuote', 'colorAccent'].forEach((id) => {
-            document.getElementById(id)?.addEventListener('input', (e) => {
-                const key = id.replace('color', '').toLowerCase();
-                const colorKey = key === 'body' ? 'body' : key;
-                this.settings.colors[colorKey] = e.target.value;
-                this.settings.preset = 'custom';
-                const presetSelect = document.getElementById('docStylePreset');
-                if (presetSelect) {
-                    if (!presetSelect.querySelector('option[value="custom"]')) {
-                        presetSelect.insertAdjacentHTML('beforeend', '<option value="custom">Personnalisé</option>');
-                    }
-                    presetSelect.value = 'custom';
-                }
-                this.saveSettings();
-                this.applyToPreview();
-            });
-        });
+        this.bindColorControl('colorH1', 'hexH1', 'content', 'h1');
+        this.bindColorControl('colorH2', 'hexH2', 'content', 'h2');
+        this.bindColorControl('colorH3', 'hexH3', 'content', 'h3');
+        this.bindColorControl('colorBody', 'hexBody', 'content', 'body');
+        this.bindColorControl('colorLink', 'hexLink', 'content', 'link');
+        this.bindColorControl('colorCode', 'hexCode', 'content', 'code');
+        this.bindColorControl('colorQuote', 'hexQuote', 'content', 'quote');
+        this.bindColorControl('colorAccent', 'hexAccent', 'content', 'accent');
+
+        this.bindColorControl('colorCoverBgStart', 'hexCoverBgStart', 'cover', 'bgStart');
+        this.bindColorControl('colorCoverBgEnd', 'hexCoverBgEnd', 'cover', 'bgEnd');
+        this.bindColorControl('colorCoverTitle', 'hexCoverTitle', 'cover', 'title');
+        this.bindColorControl('colorCoverText', 'hexCoverText', 'cover', 'text');
+        this.bindColorControl('colorCoverShapes', 'hexCoverShapes', 'cover', 'shapes');
 
         document.getElementById('btnResetDocStyle')?.addEventListener('click', () => {
             this.settings = this.defaultSettings();
@@ -276,7 +360,7 @@ class DocumentStyleManager {
         const title = document.getElementById('docTitle')?.value || 'Document';
         const author = document.getElementById('inputAuthor')?.value || 'Auteur';
         const date = document.getElementById('inputDate')?.value || new Date().toLocaleDateString('fr-FR');
-        const c = this.settings.colors;
+        const cover = this.settings.coverColors || this.defaultCoverColors(this.settings.colors);
         const safeTitle = this.escapeHtml(title);
         const safeAuthor = this.escapeHtml(author);
         const safeDate = this.escapeHtml(date);
@@ -284,9 +368,7 @@ class DocumentStyleManager {
         const pageBreak = isPreview ? '' : 'page-break-after: always;';
         const template = this.settings.coverTemplate || 'geometric-onyx';
 
-        const shapes = this.getCoverShapes(template, c);
-        const titleColor = isPreview ? c.h1 : '#FFFFFF';
-        const authorColor = c.secondary || c.accent;
+        const shapes = this.getCoverShapes(template, cover);
 
         return `
 <div class="doc-cover doc-cover-${template}" style="
@@ -295,7 +377,7 @@ class DocumentStyleManager {
     ${pageBreak}
     width: 100%;
     min-height: ${height};
-    background: linear-gradient(135deg, ${c.primary} 0%, ${this.shadeColor(c.primary, 20)} 100%);
+    background: linear-gradient(135deg, ${cover.bgStart} 0%, ${cover.bgEnd} 100%);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -308,25 +390,24 @@ class DocumentStyleManager {
 ">
     ${shapes}
     <div style="position: relative; z-index: 2; max-width: 90%;">
-        <h1 style="font-size: ${isPreview ? '1.6em' : '3em'}; margin: 0 0 16px; font-weight: 800; color: ${titleColor}; letter-spacing: -0.5px;">
+        <h1 style="font-size: ${isPreview ? '1.6em' : '3em'}; margin: 0 0 16px; font-weight: 800; color: ${cover.title}; letter-spacing: -0.5px;">
             ${safeTitle}
         </h1>
-        <div style="width: 80px; height: 4px; background: ${c.accent}; margin: 0 auto 20px; border-radius: 2px;"></div>
-        <p style="font-size: ${isPreview ? '1em' : '1.4em'}; color: ${authorColor}; font-weight: 600; margin: 0 0 8px;">
+        <div style="width: 80px; height: 4px; background: ${cover.accent}; margin: 0 auto 20px; border-radius: 2px;"></div>
+        <p style="font-size: ${isPreview ? '1em' : '1.4em'}; color: ${cover.text}; font-weight: 600; margin: 0 0 8px;">
             ${safeAuthor}
         </p>
-        <p style="font-size: ${isPreview ? '0.85em' : '1em'}; color: ${this.shadeColor(titleColor, -30)}; margin: 0;">
+        <p style="font-size: ${isPreview ? '0.85em' : '1em'}; color: ${cover.text}; opacity: 0.85; margin: 0;">
             ${safeDate}
         </p>
     </div>
-    ${isPreview ? '' : `<div style="position:absolute; bottom:24px; font-size:11px; color:rgba(255,255,255,0.5); z-index:2;">Onyx Reports</div>`}
+    ${isPreview ? '' : `<div style="position:absolute; bottom:24px; font-size:11px; color:${cover.text}; opacity:0.5; z-index:2;">Onyx Reports</div>`}
 </div>`;
     }
 
-    static getCoverShapes(template, c) {
-        const p = c.primary;
-        const s = c.secondary || c.accent;
-        const a = c.accent;
+    static getCoverShapes(template, cover) {
+        const s = cover.shapes;
+        const a = cover.accent;
 
         const shapes = {
             'geometric-onyx': `
@@ -391,14 +472,20 @@ class DocumentStyleManager {
         return {
             preset: this.settings.preset,
             coverTemplate: this.settings.coverTemplate,
-            colors: { ...this.settings.colors }
+            colors: { ...this.settings.colors },
+            coverColors: { ...(this.settings.coverColors || {}) }
         };
     }
 
     static importSettings(data) {
         if (!data) return;
-        this.settings = { ...this.defaultSettings(), ...data };
-        if (data.colors) this.settings.colors = { ...this.defaultSettings().colors, ...data.colors };
+        const defaults = this.defaultSettings();
+        this.settings = {
+            ...defaults,
+            ...data,
+            colors: { ...defaults.colors, ...(data.colors || {}) },
+            coverColors: { ...defaults.coverColors, ...(data.coverColors || {}) }
+        };
         this.saveSettings();
         this.populateUI();
         this.applyToPreview();
@@ -412,6 +499,7 @@ class DocumentStyleManager {
 
         if (palette && this.settings.preset === 'default') {
             this.settings.colors = { ...palette };
+            this.settings.coverColors = this.defaultCoverColors(palette, theme);
             this.saveSettings();
             this.syncColorInputs();
         }

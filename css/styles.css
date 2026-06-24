@@ -1028,28 +1028,88 @@ body {
     gap: var(--spacing-sm);
 }
 
+.color-style-grid-single {
+    grid-template-columns: 1fr;
+}
+
+.color-style-subsection {
+    margin-top: var(--spacing-sm);
+}
+
+.color-style-subtitle {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--onyx-muted);
+    margin: var(--spacing-sm) 0 var(--spacing-xs);
+}
+
 .color-style-item {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm) var(--spacing-md);
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm);
     background: var(--onyx-charcoal);
     border: 1px solid rgba(167, 139, 250, 0.2);
     border-radius: 4px;
     font-size: 11px;
     font-weight: 600;
     color: var(--onyx-light);
-    cursor: pointer;
+    cursor: default;
+    overflow: hidden;
 }
 
-.color-style-item span {
+.color-style-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--onyx-muted);
+}
+
+.color-input-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    width: 100%;
+    min-width: 0;
+}
+
+.color-picker-swatch {
+    width: 36px;
+    height: 32px;
+    flex-shrink: 0;
+    padding: 0;
+    border: 2px solid var(--accent-primary);
+    border-radius: 4px;
+    cursor: pointer;
+    background: transparent;
+}
+
+.color-hex-value {
     flex: 1;
+    min-width: 0;
+    background: var(--input-bg, var(--onyx-dark));
+    border: 1px solid var(--input-border, var(--accent-primary));
+    color: var(--input-text, var(--onyx-light));
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.color-hex-value:focus {
+    outline: none;
+    border-color: var(--accent-secondary);
 }
 
 .color-style-item input[type="color"] {
-    width: 32px;
-    height: 28px;
+    width: 36px;
+    height: 32px;
     padding: 0;
     border: 2px solid var(--accent-primary);
     border-radius: 4px;
@@ -1078,6 +1138,7 @@ body {
     background: linear-gradient(180deg, var(--onyx-dark), var(--onyx-charcoal));
     border-left: 2px solid var(--accent-primary);
     overflow-y: auto;
+    overflow-x: hidden;
     padding: var(--spacing-xl);
     display: flex;
     flex-direction: column;

@@ -336,6 +336,48 @@ Votre texte ici...
                     <label>Date</label>
                     <input type="date" id="inputDate" class="input-field">
                 </div>
+
+                <div class="color-style-subsection">
+                    <p class="color-style-subtitle">Couleurs de la couverture</p>
+                    <div class="color-style-grid color-style-grid-single">
+                        <label class="color-style-item">
+                            <span class="color-style-label">Fond (début)</span>
+                            <div class="color-input-row">
+                                <input type="color" id="colorCoverBgStart" class="color-picker-swatch" value="#1A1F2E">
+                                <input type="text" id="hexCoverBgStart" class="color-hex-value" maxlength="7" spellcheck="false">
+                            </div>
+                        </label>
+                        <label class="color-style-item">
+                            <span class="color-style-label">Fond (fin)</span>
+                            <div class="color-input-row">
+                                <input type="color" id="colorCoverBgEnd" class="color-picker-swatch" value="#2D3142">
+                                <input type="text" id="hexCoverBgEnd" class="color-hex-value" maxlength="7" spellcheck="false">
+                            </div>
+                        </label>
+                        <label class="color-style-item">
+                            <span class="color-style-label">Titre couverture</span>
+                            <div class="color-input-row">
+                                <input type="color" id="colorCoverTitle" class="color-picker-swatch" value="#FFFFFF">
+                                <input type="text" id="hexCoverTitle" class="color-hex-value" maxlength="7" spellcheck="false">
+                            </div>
+                        </label>
+                        <label class="color-style-item">
+                            <span class="color-style-label">Texte couverture</span>
+                            <div class="color-input-row">
+                                <input type="color" id="colorCoverText" class="color-picker-swatch" value="#ECF0F1">
+                                <input type="text" id="hexCoverText" class="color-hex-value" maxlength="7" spellcheck="false">
+                            </div>
+                        </label>
+                        <label class="color-style-item">
+                            <span class="color-style-label">Formes décoratives</span>
+                            <div class="color-input-row">
+                                <input type="color" id="colorCoverShapes" class="color-picker-swatch" value="#E67E22">
+                                <input type="text" id="hexCoverShapes" class="color-hex-value" maxlength="7" spellcheck="false">
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
                 <div id="coverPreview" class="cover-preview hidden"></div>
             </section>
 
@@ -352,38 +394,64 @@ Votre texte ici...
                     <label>Page de présentation</label>
                     <select id="coverTemplate" class="input-field select-field"></select>
                 </div>
-                <div class="color-style-grid">
+
+                <p class="color-style-subtitle">Couleurs du contenu</p>
+                <div class="color-style-grid color-style-grid-single">
                     <label class="color-style-item">
-                        <span>Titre H1</span>
-                        <input type="color" id="colorH1" value="#06B6D4">
+                        <span class="color-style-label">Titre H1</span>
+                        <div class="color-input-row">
+                            <input type="color" id="colorH1" class="color-picker-swatch" value="#06B6D4">
+                            <input type="text" id="hexH1" class="color-hex-value" maxlength="7" spellcheck="false">
+                        </div>
                     </label>
                     <label class="color-style-item">
-                        <span>Titre H2</span>
-                        <input type="color" id="colorH2" value="#A78BFA">
+                        <span class="color-style-label">Titre H2</span>
+                        <div class="color-input-row">
+                            <input type="color" id="colorH2" class="color-picker-swatch" value="#A78BFA">
+                            <input type="text" id="hexH2" class="color-hex-value" maxlength="7" spellcheck="false">
+                        </div>
                     </label>
                     <label class="color-style-item">
-                        <span>Titre H3</span>
-                        <input type="color" id="colorH3" value="#EC4899">
+                        <span class="color-style-label">Titre H3</span>
+                        <div class="color-input-row">
+                            <input type="color" id="colorH3" class="color-picker-swatch" value="#EC4899">
+                            <input type="text" id="hexH3" class="color-hex-value" maxlength="7" spellcheck="false">
+                        </div>
                     </label>
                     <label class="color-style-item">
-                        <span>Texte</span>
-                        <input type="color" id="colorBody" value="#D4D8E0">
+                        <span class="color-style-label">Texte</span>
+                        <div class="color-input-row">
+                            <input type="color" id="colorBody" class="color-picker-swatch" value="#D4D8E0">
+                            <input type="text" id="hexBody" class="color-hex-value" maxlength="7" spellcheck="false">
+                        </div>
                     </label>
                     <label class="color-style-item">
-                        <span>Liens</span>
-                        <input type="color" id="colorLink" value="#06B6D4">
+                        <span class="color-style-label">Liens</span>
+                        <div class="color-input-row">
+                            <input type="color" id="colorLink" class="color-picker-swatch" value="#06B6D4">
+                            <input type="text" id="hexLink" class="color-hex-value" maxlength="7" spellcheck="false">
+                        </div>
                     </label>
                     <label class="color-style-item">
-                        <span>Code</span>
-                        <input type="color" id="colorCode" value="#A78BFA">
+                        <span class="color-style-label">Code</span>
+                        <div class="color-input-row">
+                            <input type="color" id="colorCode" class="color-picker-swatch" value="#A78BFA">
+                            <input type="text" id="hexCode" class="color-hex-value" maxlength="7" spellcheck="false">
+                        </div>
                     </label>
                     <label class="color-style-item">
-                        <span>Citations</span>
-                        <input type="color" id="colorQuote" value="#8B92A9">
+                        <span class="color-style-label">Citations</span>
+                        <div class="color-input-row">
+                            <input type="color" id="colorQuote" class="color-picker-swatch" value="#8B92A9">
+                            <input type="text" id="hexQuote" class="color-hex-value" maxlength="7" spellcheck="false">
+                        </div>
                     </label>
                     <label class="color-style-item">
-                        <span>Accent</span>
-                        <input type="color" id="colorAccent" value="#A78BFA">
+                        <span class="color-style-label">Accent</span>
+                        <div class="color-input-row">
+                            <input type="color" id="colorAccent" class="color-picker-swatch" value="#A78BFA">
+                            <input type="text" id="hexAccent" class="color-hex-value" maxlength="7" spellcheck="false">
+                        </div>
                     </label>
                 </div>
                 <button id="btnResetDocStyle" class="action-btn" type="button">
