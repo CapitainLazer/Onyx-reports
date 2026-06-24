@@ -975,6 +975,13 @@ body {
     color: var(--doc-h1, var(--accent-secondary));
 }
 
+.preview-content.doc-styled h3,
+.preview-content.doc-styled h4,
+.preview-content.doc-styled h5,
+.preview-content.doc-styled h6 {
+    color: var(--doc-h3, var(--accent-tertiary));
+}
+
 .preview-content.doc-styled h1 {
     color: var(--doc-h1, var(--accent-secondary));
     border-bottom-color: var(--doc-accent, var(--accent-primary));
