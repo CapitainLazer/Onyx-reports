@@ -42,6 +42,10 @@ class ExportManager {
         const element = document.createElement('div');
         element.innerHTML = htmlContent;
 
+        const styleEl = document.createElement('style');
+        styleEl.textContent = DocumentStyleManager?.getExportCSS() || '';
+        element.prepend(styleEl);
+
         const opt = {
             margin: 15,
             filename: `${title}.pdf`,
@@ -60,6 +64,9 @@ class ExportManager {
         const title = this.getTitle();
         const author = document.getElementById('inputAuthor').value || 'Auteur';
         const content = this.getPreviewHTML();
+        const docCSS = DocumentStyleManager?.getExportCSS() || '';
+        const hasCover = document.getElementById('chkCover').checked;
+        const coverHTML = hasCover ? CoverPageGenerator.generate() : '';
 
         const htmlDocument = `
 <!DOCTYPE html>
@@ -146,9 +153,11 @@ class ExportManager {
             color: #999;
             font-size: 14px;
         }
+        ${docCSS}
     </style>
 </head>
 <body>
+    ${coverHTML}
     <div class="container">
         <div class="header">
             <h1>${title}</h1>
@@ -288,7 +297,8 @@ class ExportManager {
                 characterCount: content.length
             },
             content,
-            theme: document.body.getAttribute('data-theme')
+            theme: document.body.getAttribute('data-theme'),
+            documentStyle: DocumentStyleManager?.getExportData() || null
         };
 
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });

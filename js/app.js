@@ -477,6 +477,9 @@ class OnyxReports {
 
         // Highlight code blocks (optionnel)
         this.highlightCode();
+        if (typeof DocumentStyleManager !== 'undefined') {
+            DocumentStyleManager.applyToPreview();
+        }
         this.applyZoom();
     }
 
@@ -526,6 +529,7 @@ class OnyxReports {
             content: this.editor.value,
             theme: document.body.getAttribute('data-theme'),
             editorMode: this.editorMode,
+            documentStyle: DocumentStyleManager?.getExportData() || null,
             timestamp: new Date().toISOString()
         };
         localStorage.setItem('onyx_doc', JSON.stringify(data));
@@ -545,6 +549,9 @@ class OnyxReports {
                 if (doc.editorMode) {
                     this.editorMode = doc.editorMode;
                     localStorage.setItem('onyx_editor_mode', doc.editorMode);
+                }
+                if (doc.documentStyle && typeof DocumentStyleManager !== 'undefined') {
+                    DocumentStyleManager.importSettings(doc.documentStyle);
                 }
             } catch (e) {
                 console.error('Erreur chargement:', e);

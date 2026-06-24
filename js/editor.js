@@ -209,6 +209,9 @@ class EditorManager {
                     if (data.theme) {
                         ThemesManager.applyTheme(data.theme);
                     }
+                    if (data.documentStyle && typeof DocumentStyleManager !== 'undefined') {
+                        DocumentStyleManager.importSettings(data.documentStyle);
+                    }
                 } catch (err) {
                     UIManager.showToast('❌ Fichier JSON invalide', 'error');
                     return;

@@ -336,6 +336,59 @@ Votre texte ici...
                     <label>Date</label>
                     <input type="date" id="inputDate" class="input-field">
                 </div>
+                <div id="coverPreview" class="cover-preview hidden"></div>
+            </section>
+
+            <!-- Stylisation Section -->
+            <section class="sidebar-section">
+                <h3 class="sidebar-title">
+                    <i class="fas fa-palette"></i> Stylisation
+                </h3>
+                <div class="form-group">
+                    <label>Thème document</label>
+                    <select id="docStylePreset" class="input-field select-field"></select>
+                </div>
+                <div class="form-group">
+                    <label>Page de présentation</label>
+                    <select id="coverTemplate" class="input-field select-field"></select>
+                </div>
+                <div class="color-style-grid">
+                    <label class="color-style-item">
+                        <span>Titre H1</span>
+                        <input type="color" id="colorH1" value="#06B6D4">
+                    </label>
+                    <label class="color-style-item">
+                        <span>Titre H2</span>
+                        <input type="color" id="colorH2" value="#A78BFA">
+                    </label>
+                    <label class="color-style-item">
+                        <span>Titre H3</span>
+                        <input type="color" id="colorH3" value="#EC4899">
+                    </label>
+                    <label class="color-style-item">
+                        <span>Texte</span>
+                        <input type="color" id="colorBody" value="#D4D8E0">
+                    </label>
+                    <label class="color-style-item">
+                        <span>Liens</span>
+                        <input type="color" id="colorLink" value="#06B6D4">
+                    </label>
+                    <label class="color-style-item">
+                        <span>Code</span>
+                        <input type="color" id="colorCode" value="#A78BFA">
+                    </label>
+                    <label class="color-style-item">
+                        <span>Citations</span>
+                        <input type="color" id="colorQuote" value="#8B92A9">
+                    </label>
+                    <label class="color-style-item">
+                        <span>Accent</span>
+                        <input type="color" id="colorAccent" value="#A78BFA">
+                    </label>
+                </div>
+                <button id="btnResetDocStyle" class="action-btn" type="button">
+                    <i class="fas fa-undo"></i> Réinitialiser styles
+                </button>
             </section>
 
             <!-- Stats Section -->
@@ -577,6 +630,7 @@ Votre texte ici...
     <script src="js/ui.js"></script>
     <script src="js/templates.js"></script>
     <script src="js/themes.js"></script>
+    <script src="js/document-style.js"></script>
     <script src="js/classic-editor.js"></script>
     <script src="js/editor.js"></script>
     <script src="js/export.js"></script>
