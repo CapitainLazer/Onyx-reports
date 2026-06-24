@@ -268,12 +268,15 @@ class DocumentStyleManager {
             colorCoverBgEnd: 'bgEnd', hexCoverBgEnd: 'bgEnd',
             colorCoverTitle: 'title', hexCoverTitle: 'title',
             colorCoverText: 'text', hexCoverText: 'text',
+            colorCoverAccent: 'accent', hexCoverAccent: 'accent',
             colorCoverShapes: 'shapes', hexCoverShapes: 'shapes'
         };
 
         if (!this.settings.coverColors) {
             this.settings.coverColors = this.defaultCoverColors(this.settings.colors);
         }
+
+        const coverDefaults = this.defaultCoverColors(this.settings.colors);
 
         Object.entries(contentMap).forEach(([inputId, colorKey]) => {
             const input = document.getElementById(inputId);
@@ -283,8 +286,13 @@ class DocumentStyleManager {
 
         Object.entries(coverMap).forEach(([inputId, colorKey]) => {
             const input = document.getElementById(inputId);
-            const value = this.settings.coverColors?.[colorKey];
-            if (input && value) input.value = value;
+            const value = this.settings.coverColors[colorKey] || coverDefaults[colorKey];
+            if (input && value) {
+                input.value = value;
+                if (!this.settings.coverColors[colorKey]) {
+                    this.settings.coverColors[colorKey] = value;
+                }
+            }
         });
     }
 
@@ -351,6 +359,7 @@ class DocumentStyleManager {
         this.bindColorControl('colorCoverBgEnd', 'hexCoverBgEnd', 'cover', 'bgEnd');
         this.bindColorControl('colorCoverTitle', 'hexCoverTitle', 'cover', 'title');
         this.bindColorControl('colorCoverText', 'hexCoverText', 'cover', 'text');
+        this.bindColorControl('colorCoverAccent', 'hexCoverAccent', 'cover', 'accent');
         this.bindColorControl('colorCoverShapes', 'hexCoverShapes', 'cover', 'shapes');
 
         document.getElementById('btnResetDocStyle')?.addEventListener('click', () => {
@@ -503,7 +512,10 @@ class DocumentStyleManager {
         const title = document.getElementById('docTitle')?.value || 'Document';
         const author = document.getElementById('inputAuthor')?.value || 'Auteur';
         const date = document.getElementById('inputDate')?.value || new Date().toLocaleDateString('fr-FR');
-        const cover = this.settings.coverColors || this.defaultCoverColors(this.settings.colors);
+        const cover = {
+            ...this.defaultCoverColors(this.settings.colors),
+            ...(this.settings.coverColors || {})
+        };
         const safeTitle = this.escapeHtml(title);
         const safeAuthor = this.escapeHtml(author);
         const safeDate = this.escapeHtml(date);
@@ -550,38 +562,38 @@ class DocumentStyleManager {
 
     static getCoverShapes(template, cover) {
         const s = cover.shapes;
-        const a = cover.accent;
+        const accent = cover.accent;
 
         const shapes = {
             'geometric-onyx': `
-                <div style="position:absolute;top:12%;left:8%;width:60px;height:60px;background:${a};opacity:0.35;transform:rotate(45deg);border-radius:8px;"></div>
+                <div style="position:absolute;top:12%;left:8%;width:60px;height:60px;background:${s};opacity:0.35;transform:rotate(45deg);border-radius:8px;"></div>
                 <div style="position:absolute;bottom:15%;right:10%;width:90px;height:90px;border:4px solid ${s};opacity:0.4;transform:rotate(15deg);border-radius:12px;"></div>
                 <div style="position:absolute;top:-60px;right:-40px;width:200px;height:200px;background:${s};opacity:0.15;border-radius:50%;"></div>
             `,
             'geometric-circles': `
                 <div style="position:absolute;top:-80px;right:-50px;width:260px;height:260px;background:${s};opacity:0.25;border-radius:50%;"></div>
-                <div style="position:absolute;bottom:-100px;left:-70px;width:320px;height:320px;background:${a};opacity:0.2;border-radius:50%;"></div>
-                <div style="position:absolute;top:40%;left:5%;width:40px;height:40px;background:${a};opacity:0.5;border-radius:50%;"></div>
+                <div style="position:absolute;bottom:-100px;left:-70px;width:320px;height:320px;background:${s};opacity:0.18;border-radius:50%;"></div>
+                <div style="position:absolute;top:40%;left:5%;width:40px;height:40px;background:${s};opacity:0.5;border-radius:50%;"></div>
                 <div style="position:absolute;bottom:30%;right:8%;width:24px;height:24px;background:${s};opacity:0.6;border-radius:50%;"></div>
             `,
             'geometric-triangles': `
                 <div style="position:absolute;top:0;right:0;width:0;height:0;border-left:180px solid transparent;border-top:180px solid ${s};opacity:0.3;"></div>
-                <div style="position:absolute;bottom:0;left:0;width:0;height:0;border-right:220px solid transparent;border-bottom:220px solid ${a};opacity:0.25;"></div>
-                <div style="position:absolute;top:50%;left:10%;width:0;height:0;border-left:30px solid transparent;border-right:30px solid transparent;border-bottom:50px solid ${a};opacity:0.4;"></div>
+                <div style="position:absolute;bottom:0;left:0;width:0;height:0;border-right:220px solid transparent;border-bottom:220px solid ${s};opacity:0.2;"></div>
+                <div style="position:absolute;top:50%;left:10%;width:0;height:0;border-left:30px solid transparent;border-right:30px solid transparent;border-bottom:50px solid ${s};opacity:0.4;"></div>
             `,
             'geometric-blocks': `
-                <div style="position:absolute;top:10%;right:5%;width:120px;height:120px;background:${a};opacity:0.3;transform:rotate(-12deg);border-radius:4px;"></div>
-                <div style="position:absolute;bottom:8%;left:6%;width:160px;height:80px;background:${s};opacity:0.25;transform:rotate(8deg);border-radius:4px;"></div>
-                <div style="position:absolute;top:55%;right:20%;width:50px;height:50px;background:${a};opacity:0.45;transform:rotate(45deg);"></div>
+                <div style="position:absolute;top:10%;right:5%;width:120px;height:120px;background:${s};opacity:0.3;transform:rotate(-12deg);border-radius:4px;"></div>
+                <div style="position:absolute;bottom:8%;left:6%;width:160px;height:80px;background:${s};opacity:0.22;transform:rotate(8deg);border-radius:4px;"></div>
+                <div style="position:absolute;top:55%;right:20%;width:50px;height:50px;background:${s};opacity:0.45;transform:rotate(45deg);"></div>
             `,
             'geometric-waves': `
                 <div style="position:absolute;bottom:0;left:0;right:0;height:120px;background:${s};opacity:0.2;border-radius:50% 50% 0 0 / 100% 100% 0 0;"></div>
-                <div style="position:absolute;top:0;left:0;right:0;height:80px;background:${a};opacity:0.15;border-radius:0 0 50% 50% / 0 0 100% 100%;"></div>
-                <div style="position:absolute;top:20%;right:12%;width:70px;height:70px;border:3px solid ${a};opacity:0.35;border-radius:50%;"></div>
+                <div style="position:absolute;top:0;left:0;right:0;height:80px;background:${s};opacity:0.15;border-radius:0 0 50% 50% / 0 0 100% 100%;"></div>
+                <div style="position:absolute;top:20%;right:12%;width:70px;height:70px;border:3px solid ${s};opacity:0.35;border-radius:50%;"></div>
             `,
             'presentation-minimal': `
-                <div style="position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,${a},${s});"></div>
-                <div style="position:absolute;bottom:0;left:0;right:0;height:6px;background:linear-gradient(90deg,${s},${a});"></div>
+                <div style="position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,${accent},${s});"></div>
+                <div style="position:absolute;bottom:0;left:0;right:0;height:6px;background:linear-gradient(90deg,${s},${accent});"></div>
             `
         };
 
