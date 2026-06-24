@@ -156,18 +156,15 @@ class OnyxReports {
     // ===== ZOOM =====
     applyZoom() {
         const scale = this.currentZoom / 100;
-        
-        // ✅ Scale SEULEMENT la preview-pane, pas le main-container
-        const previewPane = document.querySelector('.preview-pane');
-        
-        if (previewPane) {
-            previewPane.style.transform = `scale(${scale})`;
-            previewPane.style.transformOrigin = 'top left';
-            previewPane.style.width = `${100 / scale}%`;
+        const previewContent = document.querySelector('.preview-content');
+
+        if (previewContent) {
+            previewContent.style.transform = `scale(${scale})`;
+            previewContent.style.transformOrigin = 'top left';
+            previewContent.style.width = scale !== 1 ? `${100 / scale}%` : '';
         }
-        
-        // Met à jour l'affichage du zoom
-        document.getElementById('zoomLevel').textContent = this.currentZoom + '%';
+
+        document.getElementById('zoomLevel').textContent = `${this.currentZoom}%`;
     }
 
 
