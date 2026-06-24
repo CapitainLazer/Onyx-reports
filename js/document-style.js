@@ -225,6 +225,13 @@ class DocumentStyleManager {
 
         this.syncFormFields();
         this.syncColorInputs();
+        this.updateCoverPreview();
+    }
+
+    static isCoverEnabled() {
+        const chkCover = document.getElementById('chkCover');
+        if (chkCover) return chkCover.checked;
+        return Boolean(this.settings?.coverEnabled);
     }
 
     static syncFormFields() {
@@ -370,8 +377,9 @@ class DocumentStyleManager {
             UIManager.showToast('✅ Styles réinitialisés', 'success');
         });
 
-        document.getElementById('chkCover')?.addEventListener('change', () => {
-            this.persistFormFields();
+        document.getElementById('chkCover')?.addEventListener('change', (e) => {
+            this.settings.coverEnabled = e.target.checked;
+            this.saveSettings();
             this.updateCoverPreview();
         });
         document.getElementById('chkTOC')?.addEventListener('change', () => this.persistFormFields());
@@ -484,11 +492,11 @@ class DocumentStyleManager {
     static updateCoverPreview() {
         const container = document.getElementById('coverPreview');
         const colorOptions = document.getElementById('coverColorOptions');
-        const chkCover = document.getElementById('chkCover');
-        const isEnabled = Boolean(chkCover?.checked ?? this.settings?.coverEnabled);
+        const isEnabled = this.isCoverEnabled();
 
         if (colorOptions) {
             colorOptions.classList.toggle('hidden', !isEnabled);
+            colorOptions.hidden = !isEnabled;
         }
 
         if (!container) return;
@@ -496,9 +504,11 @@ class DocumentStyleManager {
         if (isEnabled) {
             container.innerHTML = this.generateCoverPage(true);
             container.classList.remove('hidden');
+            container.hidden = false;
         } else {
             container.innerHTML = '';
             container.classList.add('hidden');
+            container.hidden = true;
         }
     }
 
