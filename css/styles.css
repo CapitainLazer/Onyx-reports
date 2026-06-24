@@ -1032,12 +1032,14 @@ body {
 }
 
 .preview-content.doc-styled table th {
-    color: var(--doc-table-head, var(--doc-accent, var(--accent-secondary)));
-    background: var(--doc-table-head-bg, var(--bg-secondary));
+    color: var(--doc-table-head);
+    background: var(--doc-table-head-bg);
+    border-color: var(--doc-table-border, var(--doc-accent));
 }
 
 .preview-content.doc-styled table td {
     color: var(--doc-body, var(--text-primary, var(--onyx-light)));
+    border-color: var(--doc-table-border, rgba(167, 139, 250, 0.15));
 }
 
 /* ===== STYLISATION SIDEBAR ===== */

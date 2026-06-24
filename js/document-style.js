@@ -64,7 +64,9 @@ class DocumentStyleManager {
             quote: '#5A6A7A',
             accent: '#E67E22',
             primary: '#1A2A3A',
-            secondary: '#E67E22'
+            secondary: '#E67E22',
+            tableHead: '#FFFFFF',
+            tableHeadBg: '#1A2A3A'
         };
     }
 
@@ -180,10 +182,13 @@ class DocumentStyleManager {
         }
 
         if (Object.keys(parsed).length) {
+            const mergedColors = { ...defaults.colors, ...(parsed.colors || {}) };
+            if (!mergedColors.tableHead) mergedColors.tableHead = mergedColors.accent;
+            if (!mergedColors.tableHeadBg) mergedColors.tableHeadBg = mergedColors.primary;
             return {
                 ...defaults,
                 ...parsed,
-                colors: { ...defaults.colors, ...(parsed.colors || {}) },
+                colors: mergedColors,
                 coverColors: { ...defaults.coverColors, ...(parsed.coverColors || {}) }
             };
         }
@@ -267,7 +272,9 @@ class DocumentStyleManager {
             colorLink: 'link', hexLink: 'link',
             colorCode: 'code', hexCode: 'code',
             colorQuote: 'quote', hexQuote: 'quote',
-            colorAccent: 'accent', hexAccent: 'accent'
+            colorAccent: 'accent', hexAccent: 'accent',
+            colorTableHead: 'tableHead', hexTableHead: 'tableHead',
+            colorTableHeadBg: 'tableHeadBg', hexTableHeadBg: 'tableHeadBg'
         };
 
         const coverMap = {
@@ -361,6 +368,8 @@ class DocumentStyleManager {
         this.bindColorControl('colorCode', 'hexCode', 'content', 'code');
         this.bindColorControl('colorQuote', 'hexQuote', 'content', 'quote');
         this.bindColorControl('colorAccent', 'hexAccent', 'content', 'accent');
+        this.bindColorControl('colorTableHead', 'hexTableHead', 'content', 'tableHead');
+        this.bindColorControl('colorTableHeadBg', 'hexTableHeadBg', 'content', 'tableHeadBg');
 
         this.bindColorControl('colorCoverBgStart', 'hexCoverBgStart', 'cover', 'bgStart');
         this.bindColorControl('colorCoverBgEnd', 'hexCoverBgEnd', 'cover', 'bgEnd');
@@ -410,7 +419,9 @@ class DocumentStyleManager {
                 code: preset.colors.secondary || this.settings.colors.code,
                 accent: preset.colors.secondary || this.settings.colors.accent,
                 primary: preset.colors.primary || this.settings.colors.primary,
-                secondary: preset.colors.secondary || this.settings.colors.secondary
+                secondary: preset.colors.secondary || this.settings.colors.secondary,
+                tableHead: preset.colors.text || preset.colors.accent || preset.colors.secondary || this.settings.colors.tableHead,
+                tableHeadBg: preset.colors.primary || preset.colors.background || this.settings.colors.tableHeadBg
             };
         }
 
@@ -446,8 +457,9 @@ class DocumentStyleManager {
         preview.style.setProperty('--doc-quote', c.quote || c.accent);
         preview.style.setProperty('--doc-quote-bg', quoteBg);
         preview.style.setProperty('--doc-accent', c.accent);
-        preview.style.setProperty('--doc-table-head', c.accent);
-        preview.style.setProperty('--doc-table-head-bg', c.primary || quoteBg);
+        preview.style.setProperty('--doc-table-head', c.tableHead || c.accent);
+        preview.style.setProperty('--doc-table-head-bg', c.tableHeadBg || c.primary);
+        preview.style.setProperty('--doc-table-border', this.colorWithAlpha(c.accent || c.tableHead, '40'));
     }
 
     static colorWithAlpha(hex, alpha = '22') {
@@ -628,8 +640,8 @@ class DocumentStyleManager {
             a { color: ${c.link}; }
             code { color: ${c.code}; background: ${c.code}22; }
             blockquote { color: ${c.quote}; border-left-color: ${c.accent}; }
-            th { background: ${c.primary}; color: ${c.accent}; }
-            td { color: ${c.body}; }
+            th { background: ${c.tableHeadBg || c.primary}; color: ${c.tableHead || c.accent}; }
+            td { color: ${c.body}; border-color: ${c.accent}40; }
         `;
     }
 
