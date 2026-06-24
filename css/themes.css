@@ -35,6 +35,33 @@
     --code-text: #E67E22;
 }
 
+/* === THÈME INDUSTRIEL === */
+[data-theme="industrial"] {
+    --primary: #E67E22;
+    --primary-hover: #D35400;
+    --primary-light: rgba(230, 126, 34, 0.15);
+
+    --bg-primary: #2C3E50;
+    --bg-secondary: #34495E;
+    --bg-tertiary: #3D566E;
+    --bg-hover: rgba(230, 126, 34, 0.08);
+    --bg-input: #1A252F;
+
+    --text-primary: #ECF0F1;
+    --text-secondary: #BDC3C7;
+    --text-muted: #95A5A6;
+
+    --border-color: rgba(230, 126, 34, 0.2);
+    --border-active: var(--primary);
+
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+    --code-bg: #1A252F;
+    --code-text: #E67E22;
+}
+
 /* === THÈME LIGHT === */
 [data-theme="light"] {
     /* Couleurs principales */

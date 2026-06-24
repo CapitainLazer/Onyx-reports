@@ -17,6 +17,7 @@
     
     <!-- Librairies JS (AVANT app.js) -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turndown/7.2.0/turndown.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.min.js"></script>
 </head>
@@ -124,7 +125,7 @@
                     <button class="template-btn" onclick="TemplatesManager.load('report')">
                         <i class="fas fa-file-pdf"></i> Rapport Technique
                     </button>
-                    <button class="template-tab" data-template="internship">
+                    <button class="template-btn" data-template="internship">
                         <i class="fas fa-graduation-cap"></i> Rapport de Stage
                     </button>
                     <button class="template-btn" onclick="TemplatesManager.load('meeting')">
@@ -141,6 +142,14 @@
                 <h3 class="sidebar-title">
                     <i class="fas fa-toolbox"></i> Édition
                 </h3>
+                <div class="editor-mode-switcher">
+                    <button id="btnEditorMarkdown" class="mode-btn active" title="Mode Markdown">
+                        <i class="fas fa-code"></i> Markdown
+                    </button>
+                    <button id="btnEditorClassic" class="mode-btn" title="Éditeur classique">
+                        <i class="fas fa-font"></i> Classique
+                    </button>
+                </div>
                 <div class="toolbar">
                     <!-- Texte -->
                     <button class="tool-btn" onclick="EditorManager.insertMarkdown('# ', 'Titre H1')" title="H1">
@@ -233,8 +242,8 @@
         </aside>
 
         <!-- ========== CENTRE (ÉDITEUR + APERÇU) ========== -->
-        <div class="editor-container">
-            <!-- Éditeur -->
+        <div class="editor-container view-split">
+            <!-- Éditeur Markdown -->
             <div class="editor-pane" id="editorPane">
                 <textarea 
                     id="editor" 
@@ -252,6 +261,16 @@ Votre texte ici...
 
 [Lien](https://exemple.com)"
                     spellcheck="true"></textarea>
+            </div>
+
+            <!-- Éditeur Classique (WYSIWYG) -->
+            <div class="editor-pane classic-pane hidden" id="classicPane">
+                <div
+                    id="classicEditor"
+                    class="classic-editor"
+                    contenteditable="true"
+                    spellcheck="true"
+                    data-placeholder="Écrivez votre document ici... Utilisez la barre d'outils pour formater le texte."></div>
             </div>
 
             <!-- Séparateur mobile -->
@@ -448,8 +467,8 @@ Votre texte ici...
                 </div>
 
                 <h3 style="margin-top: 20px;">Paramètres Généraux</h3>
-                <label style="display: flex; align-items: center; gap: 10px;">
-                    <input type="checkbox" id="chkAutoSave"> Auto-sauvegarde
+                <label style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                    <input type="checkbox" id="chkAutoSave" checked> Auto-sauvegarde
                 </label>
                 <label style="display: flex; align-items: center; gap: 10px;">
                     <input type="checkbox" id="chkSpellCheck" checked> Vérification orthographe
@@ -461,12 +480,100 @@ Votre texte ici...
         </div>
     </div>
 
+    <!-- Modal - Export -->
+    <div class="modal" id="modalExport">
+        <div class="modal-content modal-content-wide">
+            <div class="modal-header">
+                <h2>Exporter le Document</h2>
+                <button class="modal-close" onclick="UIManager.closeModal('modalExport')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 16px;">Choisissez le format d'export :</p>
+                <div class="export-modal-buttons">
+                    <button class="export-btn" onclick="ExportManager.exportPDF()">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </button>
+                    <button class="export-btn" onclick="ExportManager.exportHTML()">
+                        <i class="fas fa-globe"></i> HTML
+                    </button>
+                    <button class="export-btn" onclick="ExportManager.exportWord()">
+                        <i class="fas fa-file-word"></i> Word
+                    </button>
+                    <button class="export-btn" onclick="ExportManager.exportMarkdown()">
+                        <i class="fas fa-file-alt"></i> Markdown
+                    </button>
+                    <button class="export-btn" onclick="ExportManager.exportJSON()">
+                        <i class="fas fa-code"></i> JSON
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="UIManager.closeModal('modalExport')">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal - Aide -->
+    <div class="modal" id="modalHelp">
+        <div class="modal-content modal-content-wide">
+            <div class="modal-header">
+                <h2>Aide — Onyx Reports</h2>
+                <button class="modal-close" onclick="UIManager.closeModal('modalHelp')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body help-modal-body">
+                <h3>Modes d'édition</h3>
+                <ul>
+                    <li><strong>Markdown</strong> — Éditeur source avec syntaxe Markdown</li>
+                    <li><strong>Classique</strong> — Éditeur visuel WYSIWYG (sans syntaxe)</li>
+                </ul>
+
+                <h3>Vues</h3>
+                <ul>
+                    <li><strong>Édition</strong> — Panneau éditeur uniquement</li>
+                    <li><strong>Split</strong> — Éditeur + aperçu côte à côte</li>
+                    <li><strong>Aperçu</strong> — Rendu final uniquement</li>
+                </ul>
+
+                <h3>Raccourcis clavier</h3>
+                <div class="shortcuts-list">
+                    <div class="shortcut"><kbd>Ctrl+B</kbd> Gras</div>
+                    <div class="shortcut"><kbd>Ctrl+I</kbd> Italique</div>
+                    <div class="shortcut"><kbd>Ctrl+Z</kbd> Annuler</div>
+                    <div class="shortcut"><kbd>Ctrl+Y</kbd> Refaire</div>
+                    <div class="shortcut"><kbd>Ctrl+S</kbd> Sauvegarder</div>
+                    <div class="shortcut"><kbd>Ctrl+N</kbd> Nouveau document</div>
+                    <div class="shortcut"><kbd>Ctrl+E</kbd> Exporter</div>
+                    <div class="shortcut"><kbd>Ctrl+H</kbd> Aide</div>
+                </div>
+
+                <h3>Syntaxe Markdown</h3>
+                <div class="markdown-help">
+                    <div class="help-item"><code># Titre</code> Titre niveau 1</div>
+                    <div class="help-item"><code>## Titre</code> Titre niveau 2</div>
+                    <div class="help-item"><code>**gras**</code> Texte en gras</div>
+                    <div class="help-item"><code>*italique*</code> Texte en italique</div>
+                    <div class="help-item"><code>- item</code> Liste à puces</div>
+                    <div class="help-item"><code>[lien](url)</code> Lien hypertexte</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="UIManager.closeModal('modalHelp')">Fermer</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Container -->
     <div id="toastContainer" class="toast-container"></div>
 
     <!-- ==================== SCRIPTS ==================== -->
+    <script src="js/ui.js"></script>
     <script src="js/templates.js"></script>
     <script src="js/themes.js"></script>
+    <script src="js/classic-editor.js"></script>
     <script src="js/editor.js"></script>
     <script src="js/export.js"></script>
     <script src="js/coverpage.js"></script>

@@ -83,16 +83,21 @@ class CoverPageGenerator {
     }
 
     static generateTableOfContents() {
-        const content = document.getElementById('preview').innerText;
         const headings = document.querySelectorAll('.preview-content h1, .preview-content h2, .preview-content h3');
-        
-        let toc = '<h2>Table des matières</h2><ul>';
+
+        if (headings.length === 0) {
+            return '<div style="page-break-after: always;"><h2>Table des matières</h2><p>Aucun titre trouvé.</p></div>';
+        }
+
+        let toc = '<div style="page-break-after: always; padding: 20px 0;"><h2 style="color: #1A2A3A; margin-bottom: 20px;">Table des matières</h2><ul style="list-style: none; padding: 0;">';
         headings.forEach((heading, index) => {
-            const level = parseInt(heading.tagName[1]);
-            const margin = (level - 1) * 20;
-            toc += `<li style="margin-left: ${margin}px"><a href="#heading-${index}">${heading.textContent}</a></li>`;
+            const level = parseInt(heading.tagName[1], 10);
+            const margin = (level - 1) * 24;
+            const id = `heading-${index}`;
+            heading.id = id;
+            toc += `<li style="margin-left: ${margin}px; margin-bottom: 8px;"><a href="#${id}" style="color: #1A2A3A; text-decoration: none;">${heading.textContent}</a></li>`;
         });
-        toc += '</ul>';
+        toc += '</ul></div>';
 
         return toc;
     }

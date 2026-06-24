@@ -8,6 +8,11 @@ class EditorManager {
 
     // ===== INSERT MARKDOWN =====
     static insertMarkdown(before, placeholder, after = '') {
+        if (ClassicEditorManager.isActive) {
+            this.insertClassicFormat(before, placeholder, after);
+            return;
+        }
+
         const textarea = this.editor;
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
@@ -27,7 +32,34 @@ class EditorManager {
     }
 
     // ===== INSERT CODE BLOCK =====
+    static insertClassicFormat(before, placeholder, after = '') {
+        const map = {
+            '# ': () => ClassicEditorManager.insertHeading(1),
+            '## ': () => ClassicEditorManager.insertHeading(2),
+            '### ': () => ClassicEditorManager.insertHeading(3),
+            '**': () => ClassicEditorManager.execCommand('bold'),
+            '*': () => ClassicEditorManager.execCommand('italic'),
+            '~~': () => ClassicEditorManager.execCommand('strikeThrough'),
+            '- ': () => ClassicEditorManager.execCommand('insertUnorderedList'),
+            '1. ': () => ClassicEditorManager.execCommand('insertOrderedList'),
+            '> ': () => ClassicEditorManager.execCommand('formatBlock', 'blockquote'),
+            '[': () => ClassicEditorManager.insertLink(),
+            '![alt](': () => ClassicEditorManager.insertImage()
+        };
+
+        if (map[before]) {
+            map[before]();
+        } else {
+            ClassicEditorManager.execCommand('insertText', false, before + (placeholder || '') + (after || before));
+        }
+    }
+
     static insertCodeBlock() {
+        if (ClassicEditorManager.isActive) {
+            ClassicEditorManager.execCommand('insertHTML', false, '<pre><code>// Code ici</code></pre>');
+            return;
+        }
+
         const start = this.editor.selectionStart;
         const codeBlock = '```\n// Code here\n```';
         
@@ -40,6 +72,12 @@ class EditorManager {
 
     // ===== INSERT TABLE =====
     static insertTable() {
+        if (ClassicEditorManager.isActive) {
+            const table = '<table border="1" style="width:100%;border-collapse:collapse"><tr><td>Colonne 1</td><td>Colonne 2</td><td>Colonne 3</td></tr><tr><td>Donnée 1</td><td>Donnée 2</td><td>Donnée 3</td></tr></table>';
+            ClassicEditorManager.execCommand('insertHTML', false, table);
+            return;
+        }
+
         const table = `| Colonne 1 | Colonne 2 | Colonne 3 |
 |-----------|-----------|-----------|
 | Donnée 1  | Donnée 2  | Donnée 3  |
@@ -64,9 +102,14 @@ class EditorManager {
     }
 
     // ===== SET/GET VALUE =====
-    static setValue(value) {
+    static setValue(value, triggerInput = true) {
         this.editor.value = value;
-        this.editor.dispatchEvent(new Event('input', { bubbles: true }));
+        if (ClassicEditorManager.isActive) {
+            ClassicEditorManager.activate();
+        }
+        if (triggerInput) {
+            this.editor.dispatchEvent(new Event('input', { bubbles: true }));
+        }
     }
 
     static getValue() {
@@ -83,16 +126,28 @@ class EditorManager {
     }
 
     static undo() {
+        if (ClassicEditorManager.isActive) {
+            ClassicEditorManager.syncToMarkdown();
+        }
         if (this.historyIndex > 0) {
             this.historyIndex--;
             this.setValue(this.history[this.historyIndex]);
+            if (ClassicEditorManager.isActive) {
+                ClassicEditorManager.activate();
+            }
         }
     }
 
     static redo() {
+        if (ClassicEditorManager.isActive) {
+            ClassicEditorManager.syncToMarkdown();
+        }
         if (this.historyIndex < this.history.length - 1) {
             this.historyIndex++;
             this.setValue(this.history[this.historyIndex]);
+            if (ClassicEditorManager.isActive) {
+                ClassicEditorManager.activate();
+            }
         }
     }
 
@@ -114,14 +169,15 @@ class EditorManager {
 
     // ===== NOUVEAU DOCUMENT =====
     static newDocument() {
-        if (confirm('Créer un nouveau document ? Les modifications seront perdues.')) {
-            this.setValue('');
-            document.getElementById('docTitle').value = 'Sans titre';
-            this.history = [''];
-            this.historyIndex = 0;
-            UIManager.closeModal('modalNewDoc');
-            UIManager.showToast('✅ Nouveau document créé', 'success');
+        this.setValue('');
+        document.getElementById('docTitle').value = 'Sans titre';
+        this.history = [''];
+        this.historyIndex = 0;
+        if (ClassicEditorManager.isActive) {
+            ClassicEditorManager.activate();
         }
+        UIManager.closeModal('modalNewDoc');
+        UIManager.showToast('✅ Nouveau document créé', 'success');
     }
 
     // ===== CHARGER FICHIER =====
@@ -136,10 +192,35 @@ class EditorManager {
 
         const reader = new FileReader();
         reader.onload = (e) => {
-            const content = e.target.result;
+            let content = e.target.result;
+            let title = file.name.replace(/\.[^.]+$/, '');
+
+            if (file.name.endsWith('.json')) {
+                try {
+                    const data = JSON.parse(content);
+                    content = data.content || '';
+                    title = data.metadata?.title || data.title || title;
+                    if (data.metadata?.author) {
+                        document.getElementById('inputAuthor').value = data.metadata.author;
+                    }
+                    if (data.metadata?.date) {
+                        document.getElementById('inputDate').value = data.metadata.date.split('T')[0];
+                    }
+                    if (data.theme) {
+                        ThemesManager.applyTheme(data.theme);
+                    }
+                } catch (err) {
+                    UIManager.showToast('❌ Fichier JSON invalide', 'error');
+                    return;
+                }
+            }
+
             this.setValue(content);
-            document.getElementById('docTitle').value = file.name.split('.')[0];
+            document.getElementById('docTitle').value = title;
             this.saveToHistory();
+            if (ClassicEditorManager.isActive) {
+                ClassicEditorManager.activate();
+            }
             UIManager.closeModal('modalLoadDoc');
             UIManager.showToast('✅ Fichier chargé', 'success');
         };

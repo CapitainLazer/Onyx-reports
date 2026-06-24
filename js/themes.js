@@ -15,6 +15,10 @@ class ThemesManager {
         this.applyTheme(savedTheme);
     }
 
+    static setTheme(theme) {
+        this.applyTheme(theme);
+    }
+
     static applyTheme(theme) {
         if (!this.themes.includes(theme)) theme = 'light';
 

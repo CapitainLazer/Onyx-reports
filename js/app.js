@@ -8,6 +8,7 @@ class OnyxReports {
         this.wordCount = document.getElementById('wordCount');
         
         this.currentView = 'split'; // 'edit', 'split', 'preview'
+        this.editorMode = localStorage.getItem('onyx_editor_mode') || 'markdown'; // 'markdown' | 'classic'
         this.currentZoom = 100;
         this.currentPage = 1;
         this.totalPages = 1;
@@ -39,6 +40,9 @@ class OnyxReports {
         this.setupExportButtons();
         this.setupActionButtons();
         this.setupAutoSave();
+        this.setupSettings();
+        this.setupEditorMode();
+        this.setDefaultDate();
         this.updatePreview();
         this.updateStats();
 
@@ -72,26 +76,39 @@ class OnyxReports {
         const btnSplit = document.getElementById('btnSplit');
         const btnPreviewOnly = document.getElementById('btnPreviewOnly');
         const editorPane = document.getElementById('editorPane');
+        const classicPane = document.getElementById('classicPane');
         const previewPane = document.getElementById('previewPane');
+
+        const getActiveEditorPane = () => {
+            return this.editorMode === 'classic' ? classicPane : editorPane;
+        };
 
         btnEditOnly.addEventListener('click', () => {
             this.currentView = 'edit';
-            editorPane.classList.remove('hidden');
+            editorPane.classList.add('hidden');
+            classicPane.classList.add('hidden');
+            getActiveEditorPane().classList.remove('hidden');
             previewPane.classList.add('hidden');
+            document.querySelector('.editor-container').className = 'editor-container view-edit';
             this.updateViewButtons();
         });
 
         btnSplit.addEventListener('click', () => {
             this.currentView = 'split';
-            editorPane.classList.remove('hidden');
+            editorPane.classList.add('hidden');
+            classicPane.classList.add('hidden');
+            getActiveEditorPane().classList.remove('hidden');
             previewPane.classList.remove('hidden');
+            document.querySelector('.editor-container').className = 'editor-container view-split';
             this.updateViewButtons();
         });
 
         btnPreviewOnly.addEventListener('click', () => {
             this.currentView = 'preview';
             editorPane.classList.add('hidden');
+            classicPane.classList.add('hidden');
             previewPane.classList.remove('hidden');
+            document.querySelector('.editor-container').className = 'editor-container view-preview';
             this.updateViewButtons();
         });
     }
@@ -162,6 +179,7 @@ class OnyxReports {
         btnPrevPage.addEventListener('click', () => {
             if (this.currentPage > 1) {
                 this.currentPage--;
+                this.scrollToPage();
                 this.updatePaginationDisplay();
             }
         });
@@ -169,9 +187,34 @@ class OnyxReports {
         btnNextPage.addEventListener('click', () => {
             if (this.currentPage < this.totalPages) {
                 this.currentPage++;
+                this.scrollToPage();
                 this.updatePaginationDisplay();
             }
         });
+    }
+
+    scrollToPage() {
+        const wordsPerPage = 250;
+        const content = this.editor.value;
+        const words = content.trim().split(/\s+/).filter(w => w.length > 0);
+        const startWord = (this.currentPage - 1) * wordsPerPage;
+
+        if (startWord >= words.length) return;
+
+        const targetText = words.slice(0, startWord).join(' ');
+        const position = targetText.length + (startWord > 0 ? 1 : 0);
+
+        if (this.editorMode === 'classic' && ClassicEditorManager.isActive) {
+            const classicEditor = document.getElementById('classicEditor');
+            if (classicEditor) {
+                classicEditor.scrollTop = (this.currentPage - 1) * classicEditor.clientHeight * 0.8;
+            }
+        } else {
+            this.editor.focus();
+            this.editor.setSelectionRange(position, position);
+            const lineHeight = parseInt(getComputedStyle(this.editor).lineHeight, 10) || 20;
+            this.editor.scrollTop = Math.max(0, (this.currentPage - 1) * lineHeight * 15);
+        }
     }
 
     updatePaginationDisplay() {
@@ -275,15 +318,97 @@ class OnyxReports {
         });
     }
 
+    // ===== EDITOR MODE (Markdown / Classique) =====
+    setupEditorMode() {
+        const btnMarkdown = document.getElementById('btnEditorMarkdown');
+        const btnClassic = document.getElementById('btnEditorClassic');
+        const markdownPane = document.getElementById('editorPane');
+        const classicPane = document.getElementById('classicPane');
+
+        if (!btnMarkdown || !btnClassic) return;
+
+        const applyMode = (mode) => {
+            this.editorMode = mode;
+            localStorage.setItem('onyx_editor_mode', mode);
+
+            const previewPane = document.getElementById('previewPane');
+            const container = document.querySelector('.editor-container');
+            const isPreviewOnly = container.classList.contains('view-preview');
+            const isEditOnly = container.classList.contains('view-edit');
+
+            if (mode === 'classic') {
+                ClassicEditorManager.activate();
+                markdownPane.classList.add('hidden');
+                if (!isPreviewOnly) classicPane.classList.remove('hidden');
+                btnClassic.classList.add('active');
+                btnMarkdown.classList.remove('active');
+            } else {
+                ClassicEditorManager.deactivate();
+                classicPane.classList.add('hidden');
+                if (!isPreviewOnly) markdownPane.classList.remove('hidden');
+                btnMarkdown.classList.add('active');
+                btnClassic.classList.remove('active');
+            }
+
+            if (isPreviewOnly) {
+                markdownPane.classList.add('hidden');
+                classicPane.classList.add('hidden');
+                previewPane.classList.remove('hidden');
+            }
+        };
+
+        btnMarkdown.addEventListener('click', () => applyMode('markdown'));
+        btnClassic.addEventListener('click', () => applyMode('classic'));
+        applyMode(this.editorMode);
+    }
+
+    // ===== PARAMÈTRES =====
+    setupSettings() {
+        const chkAutoSave = document.getElementById('chkAutoSave');
+        const chkSpellCheck = document.getElementById('chkSpellCheck');
+
+        const autoSaveEnabled = localStorage.getItem('onyx_autosave') !== 'false';
+        if (chkAutoSave) {
+            chkAutoSave.checked = autoSaveEnabled;
+            chkAutoSave.addEventListener('change', () => {
+                localStorage.setItem('onyx_autosave', chkAutoSave.checked);
+                UIManager.showToast(
+                    chkAutoSave.checked ? '✅ Auto-sauvegarde activée' : 'ℹ️ Auto-sauvegarde désactivée',
+                    'success'
+                );
+            });
+        }
+
+        if (chkSpellCheck) {
+            chkSpellCheck.checked = this.editor.spellcheck;
+            chkSpellCheck.addEventListener('change', () => {
+                this.editor.spellcheck = chkSpellCheck.checked;
+                const classicEditor = document.getElementById('classicEditor');
+                if (classicEditor) classicEditor.spellcheck = chkSpellCheck.checked;
+            });
+        }
+    }
+
+    isAutoSaveEnabled() {
+        return localStorage.getItem('onyx_autosave') !== 'false';
+    }
+
+    setDefaultDate() {
+        const dateInput = document.getElementById('inputDate');
+        if (dateInput && !dateInput.value) {
+            dateInput.value = new Date().toISOString().split('T')[0];
+        }
+    }
+
     // ===== AUTO-SAVE =====
     setupAutoSave() {
         setInterval(() => {
-            if (this.isDirty) {
+            if (this.isDirty && this.isAutoSaveEnabled()) {
                 this.saveToLocalStorage();
                 this.isDirty = false;
                 console.log('💾 Auto-save');
             }
-        }, 30000); // Toutes les 30 secondes
+        }, 30000);
     }
 
     // ===== PREVIEW =====
@@ -341,6 +466,7 @@ class OnyxReports {
             title: this.docTitle.value,
             content: this.editor.value,
             theme: document.body.getAttribute('data-theme'),
+            editorMode: this.editorMode,
             timestamp: new Date().toISOString()
         };
         localStorage.setItem('onyx_doc', JSON.stringify(data));
@@ -356,6 +482,10 @@ class OnyxReports {
                 this.editor.value = doc.content || '';
                 if (doc.theme) {
                     ThemesManager.applyTheme(doc.theme);
+                }
+                if (doc.editorMode) {
+                    this.editorMode = doc.editorMode;
+                    localStorage.setItem('onyx_editor_mode', doc.editorMode);
                 }
             } catch (e) {
                 console.error('Erreur chargement:', e);
