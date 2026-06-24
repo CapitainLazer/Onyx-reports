@@ -962,6 +962,10 @@ body {
 }
 
 /* ===== DOCUMENT STYLING (aperçu) ===== */
+.preview-content.doc-styled {
+    color: var(--doc-body, var(--text-primary, var(--onyx-light)));
+}
+
 .preview-content.doc-styled h1,
 .preview-content.doc-styled h2,
 .preview-content.doc-styled h3,
@@ -999,21 +1003,34 @@ body {
 }
 
 .preview-content.doc-styled code {
-    color: var(--doc-code, var(--accent-secondary));
+    color: var(--doc-code, var(--code-text, var(--accent-secondary)));
+    background: var(--doc-code-bg, var(--code-bg, rgba(167, 139, 250, 0.2)));
     border-color: var(--doc-code, var(--accent-primary));
+}
+
+.preview-content.doc-styled pre {
+    background: var(--doc-code-bg, var(--code-bg, var(--onyx-charcoal)));
+    border-color: var(--doc-accent, var(--accent-primary));
+}
+
+.preview-content.doc-styled pre code {
+    color: var(--doc-code, var(--code-text, var(--accent-light)));
+    background: transparent;
 }
 
 .preview-content.doc-styled blockquote {
     color: var(--doc-quote, var(--onyx-silver));
+    background: var(--doc-quote-bg, var(--bg-secondary));
     border-left-color: var(--doc-accent, var(--accent-primary));
 }
 
 .preview-content.doc-styled table th {
-    color: var(--doc-accent, var(--accent-secondary));
+    color: var(--doc-table-head, var(--doc-accent, var(--accent-secondary)));
+    background: var(--doc-table-head-bg, var(--bg-secondary));
 }
 
 .preview-content.doc-styled table td {
-    color: var(--doc-body, var(--onyx-light));
+    color: var(--doc-body, var(--text-primary, var(--onyx-light)));
 }
 
 /* ===== STYLISATION SIDEBAR ===== */

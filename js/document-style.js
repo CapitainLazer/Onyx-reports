@@ -325,28 +325,50 @@ class DocumentStyleManager {
         const exportColors = this.settings.colors;
         const bg = this.getPreviewBackgroundColor();
         const uiText = this.getUiTextColor();
+        const codeBg = this.getThemeColor('--code-bg', '#1A1F2E');
+        const quoteBg = this.getThemeColor('--bg-secondary', bg);
+        const tableHeadBg = this.getThemeColor('--bg-secondary', bg);
 
         preview.classList.add('doc-styled');
-        preview.style.setProperty('--doc-h1', this.getPreviewColor(exportColors.h1, bg));
-        preview.style.setProperty('--doc-h2', this.getPreviewColor(exportColors.h2, bg));
-        preview.style.setProperty('--doc-h3', this.getPreviewColor(exportColors.h3, bg));
+        preview.style.setProperty('--doc-h1', this.getPreviewColor(exportColors.h1, bg, uiText));
+        preview.style.setProperty('--doc-h2', this.getPreviewColor(exportColors.h2, bg, uiText));
+        preview.style.setProperty('--doc-h3', this.getPreviewColor(exportColors.h3, bg, uiText));
         preview.style.setProperty('--doc-body', uiText);
-        preview.style.setProperty('--doc-link', this.getPreviewColor(exportColors.link, bg));
-        preview.style.setProperty('--doc-code', this.getPreviewColor(exportColors.code, bg));
-        preview.style.setProperty('--doc-quote', this.getPreviewColor(exportColors.quote, bg, uiText));
-        preview.style.setProperty('--doc-accent', this.getPreviewColor(exportColors.accent, bg));
+        preview.style.setProperty('--doc-link', this.getPreviewColor(exportColors.link, bg, uiText));
+        preview.style.setProperty('--doc-code', this.getPreviewColor(exportColors.code, codeBg, uiText));
+        preview.style.setProperty('--doc-code-bg', codeBg);
+        preview.style.setProperty('--doc-quote', this.getPreviewColor(exportColors.quote, quoteBg, uiText));
+        preview.style.setProperty('--doc-quote-bg', quoteBg);
+        preview.style.setProperty('--doc-accent', this.getPreviewColor(exportColors.accent, bg, uiText));
+        preview.style.setProperty('--doc-table-head', this.getPreviewColor(exportColors.accent, tableHeadBg, uiText));
+        preview.style.setProperty('--doc-table-head-bg', tableHeadBg);
+    }
+
+    static getThemeStyle() {
+        return getComputedStyle(document.body);
+    }
+
+    static getThemeColor(varName, fallback = '') {
+        const value = this.getThemeStyle().getPropertyValue(varName).trim();
+        return value || fallback;
     }
 
     static getUiTextColor() {
-        return getComputedStyle(document.documentElement)
-            .getPropertyValue('--onyx-light')
-            .trim() || '#D4D8E0';
+        return this.getThemeColor('--text-primary')
+            || this.getThemeColor('--onyx-light')
+            || '#212529';
     }
 
     static getPreviewBackgroundColor() {
-        const pane = document.querySelector('.preview-pane');
-        if (!pane) return '#2D3142';
-        return getComputedStyle(pane).backgroundColor || '#2D3142';
+        const preview = document.getElementById('preview');
+        if (preview) {
+            const bg = getComputedStyle(preview).backgroundColor;
+            if (bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)') {
+                return bg;
+            }
+        }
+
+        return this.getThemeColor('--onyx-charcoal', '#2D3142');
     }
 
     static parseRgb(color) {
@@ -550,8 +572,10 @@ class DocumentStyleManager {
 
     static onThemeChanged(theme) {
         if (!this.settings) return;
-        this.applyToPreview();
-        this.updateCoverPreview();
+        requestAnimationFrame(() => {
+            this.applyToPreview();
+            this.updateCoverPreview();
+        });
     }
 
     static isLightUiTheme(theme) {
