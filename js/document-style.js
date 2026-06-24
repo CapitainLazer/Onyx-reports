@@ -338,10 +338,17 @@ class DocumentStyleManager {
 
     static updateCoverPreview() {
         const container = document.getElementById('coverPreview');
+        const colorOptions = document.getElementById('coverColorOptions');
         const chkCover = document.getElementById('chkCover');
+        const isEnabled = Boolean(chkCover?.checked);
+
+        if (colorOptions) {
+            colorOptions.classList.toggle('hidden', !isEnabled);
+        }
+
         if (!container) return;
 
-        if (chkCover?.checked) {
+        if (isEnabled) {
             container.innerHTML = this.generateCoverPage(true);
             container.classList.remove('hidden');
         } else {

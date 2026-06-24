@@ -1124,6 +1124,10 @@ body {
     margin-top: var(--spacing-sm);
 }
 
+.cover-options.hidden {
+    display: none !important;
+}
+
 .cover-preview .doc-cover {
     margin-bottom: 0 !important;
 }
