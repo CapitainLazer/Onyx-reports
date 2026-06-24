@@ -175,7 +175,6 @@ class DocumentStyleManager {
             colorH1: 'h1', hexH1: 'h1',
             colorH2: 'h2', hexH2: 'h2',
             colorH3: 'h3', hexH3: 'h3',
-            colorBody: 'body', hexBody: 'body',
             colorLink: 'link', hexLink: 'link',
             colorCode: 'code', hexCode: 'code',
             colorQuote: 'quote', hexQuote: 'quote',
@@ -259,7 +258,6 @@ class DocumentStyleManager {
         this.bindColorControl('colorH1', 'hexH1', 'content', 'h1');
         this.bindColorControl('colorH2', 'hexH2', 'content', 'h2');
         this.bindColorControl('colorH3', 'hexH3', 'content', 'h3');
-        this.bindColorControl('colorBody', 'hexBody', 'content', 'body');
         this.bindColorControl('colorLink', 'hexLink', 'content', 'link');
         this.bindColorControl('colorCode', 'hexCode', 'content', 'code');
         this.bindColorControl('colorQuote', 'hexQuote', 'content', 'quote');
@@ -324,16 +322,67 @@ class DocumentStyleManager {
         const preview = document.getElementById('preview');
         if (!preview) return;
 
-        const c = this.ensureReadableColors();
+        const exportColors = this.settings.colors;
+        const bg = this.getPreviewBackgroundColor();
+        const uiText = this.getUiTextColor();
+
         preview.classList.add('doc-styled');
-        preview.style.setProperty('--doc-h1', c.h1);
-        preview.style.setProperty('--doc-h2', c.h2);
-        preview.style.setProperty('--doc-h3', c.h3);
-        preview.style.setProperty('--doc-body', c.body);
-        preview.style.setProperty('--doc-link', c.link);
-        preview.style.setProperty('--doc-code', c.code);
-        preview.style.setProperty('--doc-quote', c.quote);
-        preview.style.setProperty('--doc-accent', c.accent);
+        preview.style.setProperty('--doc-h1', this.getPreviewColor(exportColors.h1, bg));
+        preview.style.setProperty('--doc-h2', this.getPreviewColor(exportColors.h2, bg));
+        preview.style.setProperty('--doc-h3', this.getPreviewColor(exportColors.h3, bg));
+        preview.style.setProperty('--doc-body', uiText);
+        preview.style.setProperty('--doc-link', this.getPreviewColor(exportColors.link, bg));
+        preview.style.setProperty('--doc-code', this.getPreviewColor(exportColors.code, bg));
+        preview.style.setProperty('--doc-quote', this.getPreviewColor(exportColors.quote, bg, uiText));
+        preview.style.setProperty('--doc-accent', this.getPreviewColor(exportColors.accent, bg));
+    }
+
+    static getUiTextColor() {
+        return getComputedStyle(document.documentElement)
+            .getPropertyValue('--onyx-light')
+            .trim() || '#D4D8E0';
+    }
+
+    static getPreviewBackgroundColor() {
+        const pane = document.querySelector('.preview-pane');
+        if (!pane) return '#2D3142';
+        return getComputedStyle(pane).backgroundColor || '#2D3142';
+    }
+
+    static parseRgb(color) {
+        if (color.startsWith('#')) {
+            const num = parseInt(color.slice(1), 16);
+            return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+        }
+        const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+        if (match) {
+            return { r: +match[1], g: +match[2], b: +match[3] };
+        }
+        return { r: 45, g: 49, b: 66 };
+    }
+
+    static getRelativeLuminance({ r, g, b }) {
+        const convert = (c) => {
+            c /= 255;
+            return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+        };
+        return 0.2126 * convert(r) + 0.7152 * convert(g) + 0.0722 * convert(b);
+    }
+
+    static getContrastRatio(fg, bg) {
+        const l1 = this.getRelativeLuminance(this.parseRgb(fg));
+        const l2 = this.getRelativeLuminance(this.parseRgb(bg));
+        const lighter = Math.max(l1, l2);
+        const darker = Math.min(l1, l2);
+        return (lighter + 0.05) / (darker + 0.05);
+    }
+
+    static getPreviewColor(exportColor, backgroundColor, fallback = null) {
+        if (!exportColor) return fallback || this.getUiTextColor();
+        if (this.getContrastRatio(exportColor, backgroundColor) >= 4.5) {
+            return exportColor;
+        }
+        return fallback || this.getContrastColor(backgroundColor);
     }
 
     static updateCoverPreview() {
@@ -461,7 +510,7 @@ class DocumentStyleManager {
     }
 
     static getExportCSS() {
-        const c = this.ensureReadableColors();
+        const c = this.settings.colors;
         return `
             h1 { color: ${c.h1}; border-bottom: 3px solid ${c.accent}; padding-bottom: 10px; }
             h2 { color: ${c.h2}; border-bottom: 2px solid ${c.accent}; padding-bottom: 8px; }
@@ -501,16 +550,6 @@ class DocumentStyleManager {
 
     static onThemeChanged(theme) {
         if (!this.settings) return;
-
-        const palette = this.themePalettes[theme];
-
-        if (palette && this.settings.preset === 'default') {
-            this.settings.colors = { ...palette };
-            this.settings.coverColors = this.defaultCoverColors(palette, theme);
-            this.saveSettings();
-            this.syncColorInputs();
-        }
-
         this.applyToPreview();
         this.updateCoverPreview();
     }
@@ -519,28 +558,12 @@ class DocumentStyleManager {
         return ['light', 'isac', 'minimal'].includes(theme);
     }
 
-    static getContrastColor(hex) {
-        const num = parseInt(hex.replace('#', ''), 16);
-        const r = (num >> 16) & 255;
-        const g = (num >> 8) & 255;
-        const b = num & 255;
+    static getContrastColor(hexOrRgb) {
+        const { r, g, b } = typeof hexOrRgb === 'string' && hexOrRgb.startsWith('#')
+            ? this.parseRgb(hexOrRgb)
+            : this.parseRgb(hexOrRgb);
         const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
         return luminance > 0.55 ? '#212529' : '#F8F9FA';
-    }
-
-    static ensureReadableColors() {
-        const theme = document.body?.getAttribute('data-theme') || 'dark';
-        const isLight = this.isLightUiTheme(theme);
-        const c = { ...this.settings.colors };
-
-        if (isLight) {
-            if (this.getContrastColor(c.body) === '#F8F9FA') c.body = '#212529';
-            if (this.getContrastColor(c.quote) === '#F8F9FA') c.quote = '#495057';
-        } else {
-            if (this.getContrastColor(c.body) === '#212529') c.body = '#D4D8E0';
-        }
-
-        return c;
     }
 }
 

@@ -338,6 +338,10 @@ Votre texte ici...
                 </div>
 
                 <div id="coverColorOptions" class="cover-options hidden">
+                <div class="form-group">
+                    <label>Page de présentation</label>
+                    <select id="coverTemplate" class="input-field select-field"></select>
+                </div>
                 <div class="color-style-subsection">
                     <p class="color-style-subtitle">Couleurs de la couverture</p>
                     <div class="color-style-grid color-style-grid-single">
@@ -392,12 +396,8 @@ Votre texte ici...
                     <label>Thème document</label>
                     <select id="docStylePreset" class="input-field select-field"></select>
                 </div>
-                <div class="form-group">
-                    <label>Page de présentation</label>
-                    <select id="coverTemplate" class="input-field select-field"></select>
-                </div>
 
-                <p class="color-style-subtitle">Couleurs du contenu</p>
+                <p class="color-style-subtitle">Couleurs du contenu (export)</p>
                 <div class="color-style-grid color-style-grid-single">
                     <label class="color-style-item">
                         <span class="color-style-label">Titre H1</span>
@@ -418,13 +418,6 @@ Votre texte ici...
                         <div class="color-input-row">
                             <input type="color" id="colorH3" class="color-picker-swatch" value="#EC4899">
                             <input type="text" id="hexH3" class="color-hex-value" maxlength="7" spellcheck="false">
-                        </div>
-                    </label>
-                    <label class="color-style-item">
-                        <span class="color-style-label">Texte</span>
-                        <div class="color-input-row">
-                            <input type="color" id="colorBody" class="color-picker-swatch" value="#D4D8E0">
-                            <input type="text" id="hexBody" class="color-hex-value" maxlength="7" spellcheck="false">
                         </div>
                     </label>
                     <label class="color-style-item">
