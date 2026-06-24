@@ -414,26 +414,25 @@ class DocumentStyleManager {
         const preview = document.getElementById('preview');
         if (!preview) return;
 
+        const exportColors = this.settings.colors;
         const bg = this.getPreviewBackgroundColor();
         const uiText = this.getUiTextColor();
-        const uiSecondary = this.getThemeColor('--text-secondary', uiText);
         const codeBg = this.getThemeColor('--code-bg', '#1A1F2E');
-        const codeText = this.getThemeColor('--code-text', uiText);
         const quoteBg = this.getThemeColor('--bg-secondary', bg);
         const tableHeadBg = this.getThemeColor('--bg-secondary', bg);
 
         preview.classList.add('doc-styled');
-        preview.style.setProperty('--doc-h1', this.getThemeColor('--accent-secondary', uiText));
-        preview.style.setProperty('--doc-h2', this.getThemeColor('--accent-primary', uiText));
-        preview.style.setProperty('--doc-h3', this.getThemeColor('--accent-tertiary', uiText));
+        preview.style.setProperty('--doc-h1', this.getPreviewColor(exportColors.h1, bg, uiText));
+        preview.style.setProperty('--doc-h2', this.getPreviewColor(exportColors.h2, bg, uiText));
+        preview.style.setProperty('--doc-h3', this.getPreviewColor(exportColors.h3, bg, uiText));
         preview.style.setProperty('--doc-body', uiText);
-        preview.style.setProperty('--doc-link', this.getThemeColor('--primary', uiText));
-        preview.style.setProperty('--doc-code', codeText);
+        preview.style.setProperty('--doc-link', this.getPreviewColor(exportColors.link, bg, uiText));
+        preview.style.setProperty('--doc-code', this.getPreviewColor(exportColors.code, codeBg, uiText));
         preview.style.setProperty('--doc-code-bg', codeBg);
-        preview.style.setProperty('--doc-quote', uiSecondary);
+        preview.style.setProperty('--doc-quote', this.getPreviewColor(exportColors.quote, quoteBg, uiText));
         preview.style.setProperty('--doc-quote-bg', quoteBg);
-        preview.style.setProperty('--doc-accent', this.getThemeColor('--accent-primary', uiText));
-        preview.style.setProperty('--doc-table-head', uiText);
+        preview.style.setProperty('--doc-accent', this.getPreviewColor(exportColors.accent, bg, uiText));
+        preview.style.setProperty('--doc-table-head', this.getPreviewColor(exportColors.accent, tableHeadBg, uiText));
         preview.style.setProperty('--doc-table-head-bg', tableHeadBg);
     }
 
