@@ -53,14 +53,33 @@ class DocumentStyleManager {
         };
     }
 
+    static exportColorDefaults() {
+        return {
+            h1: '#1A2A3A',
+            h2: '#E67E22',
+            h3: '#1A2A3A',
+            body: '#1A2A3A',
+            link: '#E67E22',
+            code: '#E67E22',
+            quote: '#5A6A7A',
+            accent: '#E67E22',
+            primary: '#1A2A3A',
+            secondary: '#E67E22'
+        };
+    }
+
     static defaultSettings() {
         const theme = document.body?.getAttribute('data-theme') || 'light';
-        const palette = this.themePalettes[theme] || this.themePalettes.dark;
+        const palette = this.exportColorDefaults();
         return {
             preset: 'default',
             coverTemplate: 'geometric-onyx',
             colors: { ...palette },
-            coverColors: this.defaultCoverColors(palette, theme)
+            coverColors: this.defaultCoverColors(palette, theme),
+            coverEnabled: false,
+            tocEnabled: false,
+            author: '',
+            date: ''
         };
     }
 
@@ -90,14 +109,25 @@ class DocumentStyleManager {
         technique: 'geometric-triangles'
     };
 
+    static _readyPromise = null;
+
+    static whenReady() {
+        if (!this._readyPromise) {
+            this._readyPromise = this.init();
+        }
+        return this._readyPromise;
+    }
+
     static async init() {
         this.settings = this.loadSettings();
         await this.loadPresets();
         this.populateUI();
-        this.bindEvents();
-        this.applyToPreview();
-        const theme = document.body?.getAttribute('data-theme') || 'light';
-        this.onThemeChanged(theme);
+        if (!this._eventsBound) {
+            this.bindEvents();
+            this._eventsBound = true;
+        }
+        this.refreshPreview();
+        return this;
     }
 
     static async loadPresets() {
@@ -122,22 +152,43 @@ class DocumentStyleManager {
     }
 
     static loadSettings() {
+        const defaults = this.defaultSettings();
+        let parsed = {};
+
         try {
             const saved = localStorage.getItem('onyx_doc_style');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                const defaults = this.defaultSettings();
-                return {
-                    ...defaults,
-                    ...parsed,
-                    colors: { ...defaults.colors, ...(parsed.colors || {}) },
-                    coverColors: { ...defaults.coverColors, ...(parsed.coverColors || {}) }
-                };
+            if (saved) parsed = JSON.parse(saved);
+        } catch (e) {
+            console.warn('Erreur chargement onyx_doc_style:', e);
+        }
+
+        try {
+            const docRaw = localStorage.getItem('onyx_doc');
+            if (docRaw) {
+                const doc = JSON.parse(docRaw);
+                if (doc.documentStyle) {
+                    parsed = {
+                        ...parsed,
+                        ...doc.documentStyle,
+                        colors: { ...(parsed.colors || {}), ...(doc.documentStyle.colors || {}) },
+                        coverColors: { ...(parsed.coverColors || {}), ...(doc.documentStyle.coverColors || {}) }
+                    };
+                }
             }
         } catch (e) {
-            console.warn('Erreur chargement style document:', e);
+            console.warn('Erreur chargement documentStyle depuis onyx_doc:', e);
         }
-        return this.defaultSettings();
+
+        if (Object.keys(parsed).length) {
+            return {
+                ...defaults,
+                ...parsed,
+                colors: { ...defaults.colors, ...(parsed.colors || {}) },
+                coverColors: { ...defaults.coverColors, ...(parsed.coverColors || {}) }
+            };
+        }
+
+        return defaults;
     }
 
     static saveSettings() {
@@ -157,7 +208,12 @@ class DocumentStyleManager {
             presetSelect.innerHTML = Object.entries(this.presets).map(([id, preset]) =>
                 `<option value="${id}">${preset.name}</option>`
             ).join('');
-            presetSelect.value = this.settings.preset;
+            if (this.settings.preset === 'custom' && !presetSelect.querySelector('option[value="custom"]')) {
+                presetSelect.insertAdjacentHTML('beforeend', '<option value="custom">Personnalisé</option>');
+            }
+            if (presetSelect.querySelector(`option[value="${this.settings.preset}"]`)) {
+                presetSelect.value = this.settings.preset;
+            }
         }
 
         if (coverSelect) {
@@ -167,7 +223,33 @@ class DocumentStyleManager {
             coverSelect.value = this.settings.coverTemplate;
         }
 
+        this.syncFormFields();
         this.syncColorInputs();
+    }
+
+    static syncFormFields() {
+        const chkCover = document.getElementById('chkCover');
+        const chkTOC = document.getElementById('chkTOC');
+        const inputAuthor = document.getElementById('inputAuthor');
+        const inputDate = document.getElementById('inputDate');
+
+        if (chkCover) chkCover.checked = Boolean(this.settings.coverEnabled);
+        if (chkTOC) chkTOC.checked = Boolean(this.settings.tocEnabled);
+        if (inputAuthor && this.settings.author) inputAuthor.value = this.settings.author;
+        if (inputDate && this.settings.date) inputDate.value = this.settings.date;
+    }
+
+    static persistFormFields() {
+        const chkCover = document.getElementById('chkCover');
+        const chkTOC = document.getElementById('chkTOC');
+        const inputAuthor = document.getElementById('inputAuthor');
+        const inputDate = document.getElementById('inputDate');
+
+        this.settings.coverEnabled = Boolean(chkCover?.checked);
+        this.settings.tocEnabled = Boolean(chkTOC?.checked);
+        this.settings.author = inputAuthor?.value || '';
+        this.settings.date = inputDate?.value || '';
+        this.saveSettings();
     }
 
     static syncColorInputs() {
@@ -195,12 +277,14 @@ class DocumentStyleManager {
 
         Object.entries(contentMap).forEach(([inputId, colorKey]) => {
             const input = document.getElementById(inputId);
-            if (input) input.value = this.settings.colors[colorKey];
+            const value = this.settings.colors[colorKey] || this.exportColorDefaults()[colorKey];
+            if (input && value) input.value = value;
         });
 
         Object.entries(coverMap).forEach(([inputId, colorKey]) => {
             const input = document.getElementById(inputId);
-            if (input) input.value = this.settings.coverColors[colorKey];
+            const value = this.settings.coverColors?.[colorKey];
+            if (input && value) input.value = value;
         });
     }
 
@@ -273,14 +357,23 @@ class DocumentStyleManager {
             this.settings = this.defaultSettings();
             this.saveSettings();
             this.populateUI();
-            this.applyToPreview();
-            this.updateCoverPreview();
+            this.refreshPreview();
             UIManager.showToast('✅ Styles réinitialisés', 'success');
         });
 
-        document.getElementById('chkCover')?.addEventListener('change', () => this.updateCoverPreview());
-        document.getElementById('inputAuthor')?.addEventListener('input', () => this.updateCoverPreview());
-        document.getElementById('inputDate')?.addEventListener('change', () => this.updateCoverPreview());
+        document.getElementById('chkCover')?.addEventListener('change', () => {
+            this.persistFormFields();
+            this.updateCoverPreview();
+        });
+        document.getElementById('chkTOC')?.addEventListener('change', () => this.persistFormFields());
+        document.getElementById('inputAuthor')?.addEventListener('input', () => {
+            this.persistFormFields();
+            this.updateCoverPreview();
+        });
+        document.getElementById('inputDate')?.addEventListener('change', () => {
+            this.persistFormFields();
+            this.updateCoverPreview();
+        });
         document.getElementById('docTitle')?.addEventListener('input', () => this.updateCoverPreview());
     }
 
@@ -313,8 +406,7 @@ class DocumentStyleManager {
 
         this.saveSettings();
         this.populateUI();
-        this.applyToPreview();
-        this.updateCoverPreview();
+        this.refreshPreview();
         UIManager.showToast(`✅ Style « ${preset.name} » appliqué`, 'success');
     }
 
@@ -322,26 +414,34 @@ class DocumentStyleManager {
         const preview = document.getElementById('preview');
         if (!preview) return;
 
-        const exportColors = this.settings.colors;
         const bg = this.getPreviewBackgroundColor();
         const uiText = this.getUiTextColor();
+        const uiSecondary = this.getThemeColor('--text-secondary', uiText);
         const codeBg = this.getThemeColor('--code-bg', '#1A1F2E');
+        const codeText = this.getThemeColor('--code-text', uiText);
         const quoteBg = this.getThemeColor('--bg-secondary', bg);
         const tableHeadBg = this.getThemeColor('--bg-secondary', bg);
 
         preview.classList.add('doc-styled');
-        preview.style.setProperty('--doc-h1', this.getPreviewColor(exportColors.h1, bg, uiText));
-        preview.style.setProperty('--doc-h2', this.getPreviewColor(exportColors.h2, bg, uiText));
-        preview.style.setProperty('--doc-h3', this.getPreviewColor(exportColors.h3, bg, uiText));
+        preview.style.setProperty('--doc-h1', this.getThemeColor('--accent-secondary', uiText));
+        preview.style.setProperty('--doc-h2', this.getThemeColor('--accent-primary', uiText));
+        preview.style.setProperty('--doc-h3', this.getThemeColor('--accent-tertiary', uiText));
         preview.style.setProperty('--doc-body', uiText);
-        preview.style.setProperty('--doc-link', this.getPreviewColor(exportColors.link, bg, uiText));
-        preview.style.setProperty('--doc-code', this.getPreviewColor(exportColors.code, codeBg, uiText));
+        preview.style.setProperty('--doc-link', this.getThemeColor('--primary', uiText));
+        preview.style.setProperty('--doc-code', codeText);
         preview.style.setProperty('--doc-code-bg', codeBg);
-        preview.style.setProperty('--doc-quote', this.getPreviewColor(exportColors.quote, quoteBg, uiText));
+        preview.style.setProperty('--doc-quote', uiSecondary);
         preview.style.setProperty('--doc-quote-bg', quoteBg);
-        preview.style.setProperty('--doc-accent', this.getPreviewColor(exportColors.accent, bg, uiText));
-        preview.style.setProperty('--doc-table-head', this.getPreviewColor(exportColors.accent, tableHeadBg, uiText));
+        preview.style.setProperty('--doc-accent', this.getThemeColor('--accent-primary', uiText));
+        preview.style.setProperty('--doc-table-head', uiText);
         preview.style.setProperty('--doc-table-head-bg', tableHeadBg);
+    }
+
+    static refreshPreview() {
+        requestAnimationFrame(() => {
+            this.applyToPreview();
+            this.updateCoverPreview();
+        });
     }
 
     static getThemeStyle() {
@@ -411,7 +511,7 @@ class DocumentStyleManager {
         const container = document.getElementById('coverPreview');
         const colorOptions = document.getElementById('coverColorOptions');
         const chkCover = document.getElementById('chkCover');
-        const isEnabled = Boolean(chkCover?.checked);
+        const isEnabled = Boolean(chkCover?.checked ?? this.settings?.coverEnabled);
 
         if (colorOptions) {
             colorOptions.classList.toggle('hidden', !isEnabled);
@@ -547,11 +647,16 @@ class DocumentStyleManager {
     }
 
     static getExportData() {
+        this.persistFormFields();
         return {
             preset: this.settings.preset,
             coverTemplate: this.settings.coverTemplate,
             colors: { ...this.settings.colors },
-            coverColors: { ...(this.settings.coverColors || {}) }
+            coverColors: { ...(this.settings.coverColors || {}) },
+            coverEnabled: Boolean(this.settings.coverEnabled),
+            tocEnabled: Boolean(this.settings.tocEnabled),
+            author: this.settings.author || '',
+            date: this.settings.date || ''
         };
     }
 
@@ -565,17 +670,15 @@ class DocumentStyleManager {
             coverColors: { ...defaults.coverColors, ...(data.coverColors || {}) }
         };
         this.saveSettings();
-        this.populateUI();
-        this.applyToPreview();
-        this.updateCoverPreview();
+        if (this._eventsBound) {
+            this.populateUI();
+            this.refreshPreview();
+        }
     }
 
     static onThemeChanged(theme) {
         if (!this.settings) return;
-        requestAnimationFrame(() => {
-            this.applyToPreview();
-            this.updateCoverPreview();
-        });
+        this.refreshPreview();
     }
 
     static isLightUiTheme(theme) {
@@ -591,6 +694,3 @@ class DocumentStyleManager {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    DocumentStyleManager.init();
-});

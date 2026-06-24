@@ -543,15 +543,9 @@ class OnyxReports {
                 const doc = JSON.parse(data);
                 this.docTitle.value = doc.title || 'Sans titre';
                 this.editor.value = doc.content || '';
-                if (doc.theme) {
-                    ThemesManager.applyTheme(doc.theme);
-                }
                 if (doc.editorMode) {
                     this.editorMode = doc.editorMode;
                     localStorage.setItem('onyx_editor_mode', doc.editorMode);
-                }
-                if (doc.documentStyle && typeof DocumentStyleManager !== 'undefined') {
-                    DocumentStyleManager.importSettings(doc.documentStyle);
                 }
             } catch (e) {
                 console.error('Erreur chargement:', e);
@@ -561,6 +555,18 @@ class OnyxReports {
 }
 
 // ===== INITIALISATION =====
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    let theme = localStorage.getItem('onyx_theme') || 'light';
+    const savedDoc = localStorage.getItem('onyx_doc');
+    if (savedDoc) {
+        try {
+            const doc = JSON.parse(savedDoc);
+            if (doc.theme) theme = doc.theme;
+        } catch (e) {
+            console.warn('Impossible de lire le thème sauvegardé:', e);
+        }
+    }
+    ThemesManager.applyTheme(theme);
+    await DocumentStyleManager.whenReady();
     window.app = new OnyxReports();
 });

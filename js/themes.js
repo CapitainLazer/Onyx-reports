@@ -73,7 +73,3 @@ class ThemesManager {
     }
 }
 
-// Initialisation
-document.addEventListener('DOMContentLoaded', () => {
-    ThemesManager.init();
-});
