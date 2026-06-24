@@ -1,0 +1,17 @@
+version: '3.8'
+
+# Développement local avec rechargement des fichiers (sans restriction utilisateur)
+services:
+  onyx-reports:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: onyx-reports-dev
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+    user: root
+    environment:
+      NODE_ENV: development
+    command: ["http-server", ".", "-p", "8080", "-c-1", "-a", "0.0.0.0"]
