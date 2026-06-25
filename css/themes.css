@@ -2,8 +2,26 @@
    ONYX REPORTS - THEMES CSS
    ============================================ */
 
-/* === THÈME DARK (DÉFAUT) === */
+/* === THÈME DARK === */
 [data-theme="dark"] {
+    --onyx-black: #0F1419;
+    --onyx-dark: #1A1F2E;
+    --onyx-charcoal: #2D3142;
+    --onyx-slate: #3E4556;
+    --onyx-silver: #8B92A9;
+    --onyx-light: #D4D8E0;
+    --onyx-lighter: #E8ECFF;
+    --onyx-muted: #8B92A9;
+
+    --accent-primary: #A78BFA;
+    --accent-secondary: #06B6D4;
+    --accent-tertiary: #EC4899;
+    --accent-light: #C4B5FD;
+
+    --input-bg: #1A1F2E;
+    --input-text: #D4D8E0;
+    --input-border: #A78BFA;
+    
     /* Couleurs principales */
     --primary: #E67E22;
     --primary-hover: #D35400;
@@ -35,8 +53,71 @@
     --code-text: #E67E22;
 }
 
+/* === THÈME INDUSTRIEL === */
+[data-theme="industrial"] {
+    --onyx-black: #1A252F;
+    --onyx-dark: #243447;
+    --onyx-charcoal: #2C3E50;
+    --onyx-slate: #3D566E;
+    --onyx-silver: #95A5A6;
+    --onyx-light: #ECF0F1;
+    --onyx-lighter: #FFFFFF;
+    --onyx-muted: #BDC3C7;
+
+    --primary: #E67E22;
+    --primary-hover: #D35400;
+    --primary-light: rgba(230, 126, 34, 0.15);
+
+    --bg-primary: #2C3E50;
+    --bg-secondary: #34495E;
+    --bg-tertiary: #3D566E;
+    --bg-hover: rgba(230, 126, 34, 0.08);
+    --bg-input: #1A252F;
+
+    --text-primary: #ECF0F1;
+    --text-secondary: #BDC3C7;
+    --text-muted: #95A5A6;
+
+    --border-color: rgba(230, 126, 34, 0.2);
+    --border-active: var(--primary);
+
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+    --code-bg: #1A252F;
+    --code-text: #E67E22;
+
+    --accent-primary: #E67E22;
+    --accent-secondary: #F39C12;
+    --accent-tertiary: #ECF0F1;
+    --accent-light: #F5B041;
+
+    --input-bg: #1A252F;
+    --input-text: #ECF0F1;
+    --input-border: #E67E22;
+}
+
 /* === THÈME LIGHT === */
 [data-theme="light"] {
+    --onyx-black: #E9ECEF;
+    --onyx-dark: #FFFFFF;
+    --onyx-charcoal: #F8F9FA;
+    --onyx-slate: #DEE2E6;
+    --onyx-silver: #6C757D;
+    --onyx-light: #212529;
+    --onyx-lighter: #1A1A1A;
+    --onyx-muted: #6C757D;
+
+    --accent-primary: #6D28D9;
+    --accent-secondary: #0891B2;
+    --accent-tertiary: #DB2777;
+    --accent-light: #7C3AED;
+
+    --input-bg: #FFFFFF;
+    --input-text: #212529;
+    --input-border: #6D28D9;
+
     /* Couleurs principales */
     --primary: #2C3E50;
     --primary-hover: #34495E;
@@ -70,6 +151,24 @@
 
 /* === THÈME ISAC (BÂTIMENT) === */
 [data-theme="isac"] {
+    --onyx-black: #E8ECF0;
+    --onyx-dark: #FFFFFF;
+    --onyx-charcoal: #F5F7FA;
+    --onyx-slate: #D1D9E0;
+    --onyx-silver: #5A6A7A;
+    --onyx-light: #1A1A1A;
+    --onyx-lighter: #000000;
+    --onyx-muted: #5A6A7A;
+
+    --accent-primary: #0066B3;
+    --accent-secondary: #004C82;
+    --accent-tertiary: #E67E22;
+    --accent-light: #3399CC;
+
+    --input-bg: #FFFFFF;
+    --input-text: #1A1A1A;
+    --input-border: #0066B3;
+
     /* Couleurs principales - Palette BTP */
     --primary: #0066B3;
     --primary-hover: #004C82;
@@ -103,6 +202,24 @@
 
 /* === THÈME MINIMAL === */
 [data-theme="minimal"] {
+    --onyx-black: #F5F5F5;
+    --onyx-dark: #FFFFFF;
+    --onyx-charcoal: #FAFAFA;
+    --onyx-slate: #E5E5E5;
+    --onyx-silver: #666666;
+    --onyx-light: #111111;
+    --onyx-lighter: #000000;
+    --onyx-muted: #888888;
+
+    --accent-primary: #111111;
+    --accent-secondary: #444444;
+    --accent-tertiary: #666666;
+    --accent-light: #333333;
+
+    --input-bg: #FFFFFF;
+    --input-text: #111111;
+    --input-border: #CCCCCC;
+
     /* Couleurs principales */
     --primary: #000000;
     --primary-hover: #333333;
@@ -136,6 +253,24 @@
 
 /* === THÈME OCEAN === */
 [data-theme="ocean"] {
+    --onyx-black: #051118;
+    --onyx-dark: #0A1929;
+    --onyx-charcoal: #0D2137;
+    --onyx-slate: #132F4C;
+    --onyx-silver: #5D9CBF;
+    --onyx-light: #E3F2FD;
+    --onyx-lighter: #FFFFFF;
+    --onyx-muted: #90CAF9;
+
+    --accent-primary: #00B4D8;
+    --accent-secondary: #48CAE4;
+    --accent-tertiary: #90E0EF;
+    --accent-light: #ADE8F4;
+
+    --input-bg: #0A1929;
+    --input-text: #E3F2FD;
+    --input-border: #00B4D8;
+
     /* Couleurs principales */
     --primary: #00B4D8;
     --primary-hover: #0096B7;
@@ -169,6 +304,24 @@
 
 /* === THÈME FOREST === */
 [data-theme="forest"] {
+    --onyx-black: #111A11;
+    --onyx-dark: #1B2E1B;
+    --onyx-charcoal: #243524;
+    --onyx-slate: #2D422D;
+    --onyx-silver: #6B9B6B;
+    --onyx-light: #E8F5E9;
+    --onyx-lighter: #FFFFFF;
+    --onyx-muted: #A5D6A7;
+
+    --accent-primary: #66BB6A;
+    --accent-secondary: #43A047;
+    --accent-tertiary: #81C784;
+    --accent-light: #A5D6A7;
+
+    --input-bg: #1B2E1B;
+    --input-text: #E8F5E9;
+    --input-border: #66BB6A;
+
     /* Couleurs principales */
     --primary: #2E7D32;
     --primary-hover: #1B5E20;
@@ -202,6 +355,24 @@
 
 /* === THÈME SUNSET === */
 [data-theme="sunset"] {
+    --onyx-black: #140D0A;
+    --onyx-dark: #1F1410;
+    --onyx-charcoal: #2A1D16;
+    --onyx-slate: #362820;
+    --onyx-silver: #BF8B70;
+    --onyx-light: #FFF3E0;
+    --onyx-lighter: #FFFFFF;
+    --onyx-muted: #FFCCBC;
+
+    --accent-primary: #FF6B35;
+    --accent-secondary: #F4845F;
+    --accent-tertiary: #FF8C61;
+    --accent-light: #FFB088;
+
+    --input-bg: #1F1410;
+    --input-text: #FFF3E0;
+    --input-border: #FF6B35;
+
     /* Couleurs principales */
     --primary: #FF6B35;
     --primary-hover: #E85A24;
@@ -235,8 +406,8 @@
 
 /* === APPLICATION DES VARIABLES THÈME === */
 body {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
+    background-color: var(--onyx-black);
+    color: var(--onyx-light);
 }
 
 
@@ -246,16 +417,18 @@ body {
     position: sticky;
     top: 0;
     z-index: 1000;
-    height: auto;
+    flex-shrink: 0;
+    min-height: 64px;
+    height: 64px;
     background: var(--bg-secondary);
     border-bottom: 2px solid var(--border-color);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--spacing-md) var(--spacing-xl);
+    padding: 0 var(--spacing-xl);
     gap: var(--spacing-lg);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 }
 
 /* ===== NAVBAR SECTIONS ===== */
@@ -273,9 +446,7 @@ body {
     justify-content: center;
     gap: var(--spacing-md);
     flex: 1 1 auto;
-    min-width: 300px;
-    order: 3;
-    width: 100%;
+    min-width: 0;
 }
 
 .navbar-right {
@@ -303,9 +474,9 @@ body {
 
 /* ===== DOC TITLE ===== */
 .doc-title {
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
+    background: var(--input-bg, var(--onyx-dark));
+    border: 1px solid var(--input-border, var(--border-color));
+    color: var(--input-text, var(--onyx-light));
     padding: var(--spacing-sm) var(--spacing-md);
     border-radius: 6px;
     font-size: 14px;
@@ -314,14 +485,14 @@ body {
 }
 
 .doc-title::placeholder {
-    color: var(--text-secondary);
+    color: var(--onyx-muted);
 }
 
 .doc-title:focus {
     outline: none;
-    background: var(--bg-primary);
-    border-color: var(--primary);
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    background: var(--input-bg, var(--onyx-dark));
+    border-color: var(--accent-secondary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-secondary) 20%, transparent);
 }
 
 /* ===== WORD COUNT ===== */
@@ -507,7 +678,7 @@ body {
     padding: var(--spacing-md) var(--spacing-lg);
     background: transparent;
     border: none;
-    color: var(--text-primary);
+    color: var(--onyx-light);
     font-size: 13px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -515,8 +686,8 @@ body {
 }
 
 .dropdown-item:hover {
-    background: var(--bg-primary);
-    color: var(--primary);
+    background: var(--onyx-slate);
+    color: var(--accent-secondary);
 }
 
 .dropdown-item i {
@@ -548,6 +719,8 @@ body {
 @media (max-width: 768px) {
     .navbar {
         flex-wrap: wrap;
+        height: auto;
+        min-height: 64px;
         padding: var(--spacing-md);
         gap: var(--spacing-sm);
     }
@@ -555,7 +728,22 @@ body {
     .navbar-left {
         width: 100%;
         order: 1;
+    }
+
+    .navbar-center {
+        width: 100%;
+        order: 3;
+        min-width: 0;
+        margin-top: var(--spacing-sm);
+    }
+
+    .navbar-right {
+        width: 100%;
+        order: 2;
         gap: var(--spacing-sm);
+        margin-top: var(--spacing-sm);
+        justify-content: flex-start;
+        flex-wrap: wrap;
     }
 
     .logo span {
@@ -571,13 +759,6 @@ body {
         display: none;
     }
 
-    .navbar-center {
-        width: 100%;
-        order: 3;
-        min-width: auto;
-        margin-top: var(--spacing-sm);
-    }
-
     .view-btn {
         padding: var(--spacing-xs) var(--spacing-sm);
         font-size: 11px;
@@ -585,15 +766,6 @@ body {
 
     .view-btn span {
         display: none;
-    }
-
-    .navbar-right {
-        width: 100%;
-        order: 4;
-        gap: var(--spacing-sm);
-        margin-top: var(--spacing-sm);
-        justify-content: flex-start;
-        flex-wrap: wrap;
     }
 
     .zoom-controls,
@@ -681,13 +853,15 @@ body {
     background: var(--bg-primary);
 }
 
-#editor {
-    background: var(--bg-primary);
-    color: var(--text-primary);
+.editor-textarea,
+.classic-editor {
+    background: var(--onyx-dark);
+    color: var(--onyx-light);
 }
 
-#editor::placeholder {
-    color: var(--text-muted);
+.editor-textarea::placeholder,
+.classic-editor:empty::before {
+    color: var(--onyx-muted);
 }
 
 .pane-header {
@@ -702,18 +876,18 @@ body {
 
 /* Preview themed */
 .preview-content {
-    background: var(--bg-primary);
+    background: var(--onyx-charcoal);
 }
 
-.preview-content h1,
-.preview-content h2,
-.preview-content h3 {
-    color: var(--text-primary);
+.preview-content:not(.doc-styled) h1,
+.preview-content:not(.doc-styled) h2,
+.preview-content:not(.doc-styled) h3 {
+    color: var(--onyx-light);
 }
 
-.preview-content p,
-.preview-content li {
-    color: var(--text-secondary);
+.preview-content:not(.doc-styled) p,
+.preview-content:not(.doc-styled) li {
+    color: var(--onyx-light);
 }
 
 .preview-content blockquote {
@@ -760,13 +934,14 @@ body {
 }
 
 #docTitle {
-    color: var(--text-primary);
+    color: var(--input-text, var(--onyx-light));
+    background: var(--input-bg, var(--onyx-dark));
 }
 
 #docTitle:hover,
 #docTitle:focus {
-    border-color: var(--border-color);
-    background: var(--bg-primary);
+    border-color: var(--accent-secondary);
+    background: var(--input-bg, var(--onyx-dark));
 }
 
 .status-bar i {

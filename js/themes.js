@@ -15,6 +15,10 @@ class ThemesManager {
         this.applyTheme(savedTheme);
     }
 
+    static setTheme(theme) {
+        this.applyTheme(theme);
+    }
+
     static applyTheme(theme) {
         if (!this.themes.includes(theme)) theme = 'light';
 
@@ -30,6 +34,10 @@ class ThemesManager {
 
         // Mettre à jour boutons
         this.updateThemeButtons();
+
+        if (typeof DocumentStyleManager !== 'undefined') {
+            DocumentStyleManager.onThemeChanged(theme);
+        }
 
         // Retirer classe après transition
         setTimeout(() => {
@@ -65,7 +73,3 @@ class ThemesManager {
     }
 }
 
-// Initialisation
-document.addEventListener('DOMContentLoaded', () => {
-    ThemesManager.init();
-});

@@ -8,9 +8,6 @@ services:
     container_name: onyx-reports-app
     ports:
       - "8080:8080"
-    volumes:
-      - .:/app
-      - /app/node_modules
     environment:
       NODE_ENV: production
     restart: unless-stopped

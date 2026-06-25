@@ -15,9 +15,12 @@ class ExportManager {
 
     // ===== EXPORT PDF =====
     static exportPDF() {
+        if (ClassicEditorManager.isActive) {
+            ClassicEditorManager.syncToMarkdown();
+        }
+        if (window.app) window.app.updatePreview();
+
         const title = this.getTitle();
-        const author = document.getElementById('inputAuthor').value || 'Auteur';
-        const date = document.getElementById('inputDate').value || new Date().toLocaleDateString();
         const hasCover = document.getElementById('chkCover').checked;
         const hasTOC = document.getElementById('chkTOC').checked;
 
@@ -25,28 +28,23 @@ class ExportManager {
             <div style="font-family: Arial, sans-serif; padding: 40px; max-width: 900px; margin: 0 auto;">
         `;
 
-        // Couverture
         if (hasCover) {
-            htmlContent += `
-                <div style="page-break-after: always; text-align: center; padding: 100px 0;">
-                    <h1 style="color: #1A2A3A; font-size: 48px; margin-bottom: 20px;">${title}</h1>
-                    <p style="color: #E67E22; font-size: 18px; margin: 20px 0;">Par ${author}</p>
-                    <p style="color: #666; font-size: 14px; margin-top: 40px;">${date}</p>
-                </div>
-            `;
+            htmlContent += CoverPageGenerator.generate();
         }
 
-        // Table des matières
         if (hasTOC) {
-            htmlContent += '<div style="page-break-after: always;"><h2 style="color: #1A2A3A;">Table des matières</h2></div>';
+            htmlContent += CoverPageGenerator.generateTableOfContents();
         }
 
-        // Contenu principal
         htmlContent += this.getPreviewHTML();
         htmlContent += '</div>';
 
         const element = document.createElement('div');
         element.innerHTML = htmlContent;
+
+        const styleEl = document.createElement('style');
+        styleEl.textContent = DocumentStyleManager?.getExportCSS() || '';
+        element.prepend(styleEl);
 
         const opt = {
             margin: 15,
@@ -66,6 +64,9 @@ class ExportManager {
         const title = this.getTitle();
         const author = document.getElementById('inputAuthor').value || 'Auteur';
         const content = this.getPreviewHTML();
+        const docCSS = DocumentStyleManager?.getExportCSS() || '';
+        const hasCover = document.getElementById('chkCover').checked;
+        const coverHTML = hasCover ? CoverPageGenerator.generate() : '';
 
         const htmlDocument = `
 <!DOCTYPE html>
@@ -152,9 +153,11 @@ class ExportManager {
             color: #999;
             font-size: 14px;
         }
+        ${docCSS}
     </style>
 </head>
 <body>
+    ${coverHTML}
     <div class="container">
         <div class="header">
             <h1>${title}</h1>
@@ -294,7 +297,8 @@ class ExportManager {
                 characterCount: content.length
             },
             content,
-            theme: document.body.getAttribute('data-theme')
+            theme: document.body.getAttribute('data-theme'),
+            documentStyle: DocumentStyleManager?.getExportData() || null
         };
 
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
