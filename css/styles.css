@@ -1796,6 +1796,10 @@ input[type="file"]::file-selector-button:hover {
 }
 
 @media (max-width: 768px) {
+    .mobile-hidden {
+        display: none !important;
+    }
+
     .navbar {
         padding: var(--spacing-sm);
     }
